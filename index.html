@@ -24,23 +24,20 @@
           <h2 class="page-title page-title_float_left">ПАКЕТЫ ПРИЛОЖЕНИЙ</h2>
           <input class="search-input" type="search" placeholder="Поиск приложения" name="search-input">
         </header>
-        <div class="app-packages clearfix">
-          <div class="app-packages__item">
-            <a href="#"><img class="app-packages__face" src="img/standart-package.png" width="330" height="198" alt="Стандартный пакет"></a>
-            <div class="app-packages__name">СТАНДАРТНЫЙ ПАКЕТ</div>
-            <time class="pub-date" datetime="2012-04-08">08 апреля 2012</time>
+        <div class="app-packages">
+          <div class="app-packages__content clearfix"></div>
+          <button class="list-btn list-btn_prev" type="button">Предыдущий</button>
+          <button class="list-btn list-btn_next" type="button">Следующий</button>
+          <div class="slider">
+            <div class="slider__point">1</div>
+            <div class="slider__point">2</div>
+            <div class="slider__point">3</div>
+            <div class="slider__point slider__point_active">4</div>
+            <div class="slider__point">5</div>
+            <div class="slider__point">6</div>
+            <div class="slider__point">7</div>
           </div>
-          <div class="app-packages__item">
-            <a href="#"><img class="app-packages__face" src="img/new-bank.png" width="330" height="198" alt="Новый ЦФТ-банк"></a>
-            <div class="app-packages__name">НОВЫЙ ЦФТ-БАНК</div>
-            <time class="pub-date" datetime="2016-09-09">09 сентября 2016</time>
-          </div>
-          <div class="app-packages__item">
-            <a href="#"><img class="app-packages__face" src="img/catalog.png" width="330" height="198" alt="Каталог"></a>
-            <div class="app-packages__name">КАТАЛОГ РАЗРАБОТОК</div>
-            <time class="pub-date" datetime="2015-03-03">03 марта 2015</time>
-          </div>
-        </div>
+        </div>  
         <div class="catalogs clearfix">
           <div class="catalogs__column">
             <div class="catalogs__header">
@@ -96,5 +93,6 @@
         </div>
       </section>
     </div>  
+    <script src="js/script.js"></script>
   </body>
 </html>
