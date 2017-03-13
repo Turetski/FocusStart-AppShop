@@ -13,9 +13,11 @@
             <div class="app-packages__name">КАТАЛОГ РАЗРАБОТОК</div>
             <time class="pub-date" datetime="2015-03-03">03 марта 2015</time>
           </div>*/
-  var PACK_VISIBLE=3, PACK_COUNT =7, 
-      PACKING_INTERVAL = 1200,
-      packages =[], selectedPack;
+
+
+var PACK_VISIBLE=3, PACK_COUNT =7, 
+    PACKING_INTERVAL = 1200,
+    selectedPack;
 
 
 
@@ -84,10 +86,11 @@
   }
   
   function getPackages(){
-    return [getNewPackage(), getNewPackage(), getNewPackage(), getNewPackage(), getNewPackage(), getNewPackage(), getNewPackage(), getNewPackage(), getNewPackage()];
+    return [getNewPackage(), getNewPackage(), getNewPackage(), getNewPackage(),
+      getNewPackage(), getNewPackage(), getNewPackage(), getNewPackage(), getNewPackage()];
   }
 
-  function createPackage(package) {
+  function createPackageNode(package, parent) {
     var packBody = document.createElement('div'); 
     var packLink = document.createElement('a');
     var packImg = document.createElement('img');
@@ -110,32 +113,40 @@
     packBody.appendChild(packLink);
     packBody.appendChild(packName);
     packBody.appendChild(packDate);
-    return packBody;
+    parent.appendChild(packBody);
   }
 
-  function addPackage(package) {
-    var packageContainer = document.querySelector(".app-packages__content"); 
-    packageContainer.appendChild(createPackage(package));
+  function fillPackageSlider(count) {
+    var slider = document.querySelector(".app-packages__slider"),
+        sliderPoint;
+    slider.innerHTML = "";    
+    for(var i=0; i< count; i++){
+      sliderPoint = document.createElement('div');
+      sliderPoint.classList.add("slider__point");
+      sliderPoint.setAttribute("data-num", i+1);
+      sliderPoint.addEventListener("click", function(e){
+        selectedPack = parseInt( e.target.getAttribute("data-num") );
+        changePackageVisions(); 
+      })
+      slider.appendChild(sliderPoint);
+    }
   }
 
   function addPackages(packs, count) {
     var packsAdding = packs.slice(0, count),
-        points = document.querySelectorAll(".app-packages .slider__point");
+        packageContainer = document.querySelector(".app-packages__content");
     count = packsAdding.length;
+    fillPackageSlider(count);
     packages =[];
     selectedPack = ((count / 2) | 0) + count % 2;
     for(var i=0; i<count; i++){
-      addPackage(packsAdding[i]);
-      points[i].addEventListener("click", function(e){
-        selectedPack = parseInt(e.target.innerHTML);
-        changePackageVisions(); 
-      });
+      createPackageNode(packsAdding[i], packageContainer);
     }
     changePackageVisions();
   }
 
   function addPackagesCycle(){
-   document.querySelector(".app-packages__content").innerHTML=""; 
+    document.querySelector(".app-packages__content").innerHTML=""; 
     addPackages(getPackages(), PACK_COUNT);
     setTimeout(addPackagesCycle, PACKING_INTERVAL);
   }
@@ -143,15 +154,27 @@
   function changePackageVisions(){
     var packs = document.querySelectorAll(".app-packages__item"),
         points = document.querySelectorAll(".app-packages .slider__point"),
-        first=true, k=2;
+        first = true, k = 2;
     count = packs.length;
-    if(selectedPack> packs.length) selectedPack = packs.length;
-    if( (selectedPack === 1) || (selectedPack === count)) k= 3; 
+
+    if (selectedPack <= 1) {
+      selectedPack = 1;
+      hideSliderBtn("prev");
+    } else showSliderBtn("prev");
+
+    if(selectedPack >= packs.length) {
+      selectedPack = packs.length;
+      hideSliderBtn("next");
+    } else showSliderBtn("next");
+
+    if( (selectedPack === 1) || (selectedPack === count)) k = 3; 
+
     for(var i=0; i<count; i++){
       packs[i].classList.remove("app-packages__item_visible");
       packs[i].classList.remove("app-packages__item_first-visible");
+      packs[i].classList.remove("app-packages__item_selected")
       points[i].classList.remove("slider__point_active");
-      if (Math.abs(selectedPack-1-i)<k) { 
+      if (Math.abs(selectedPack-1-i) < k) { 
         packs[i].classList.add("app-packages__item_visible");
         if(first) {
           packs[i].classList.add("app-packages__item_first-visible");
@@ -159,22 +182,32 @@
         }  
       }      
     }
+    packs[selectedPack-1].classList.add("app-packages__item_selected");
     points[selectedPack-1].classList.add("slider__point_active");
   }
 
-  function movePacksLeft(){
-    if(selectedPack>1) selectedPack--;
+  function movePacksLeft(e){
+    e.preventDefault();
+    selectedPack--;
     changePackageVisions();
   }
 
-  function movePacksRight(){
-    if(selectedPack<PACK_COUNT) selectedPack++;
+  function movePacksRight(e){
+    e.preventDefault();
+    selectedPack++;
     changePackageVisions();
   }
+  
+  function hideSliderBtn(btnType) {
+    var btn=document.querySelector(".list-btn_" + btnType);
+    btn.classList.add("btn-hidden");
+  }
 
+  function showSliderBtn(btnType) {
+    var btn=document.querySelector(".list-btn_" + btnType);
+    btn.classList.remove("btn-hidden");
+  }
 addPackages(getPackages(), PACK_COUNT);
-console.log(selectedPack);
-
 document.querySelector(".app-packages .list-btn_prev").addEventListener("click" , movePacksLeft);
 document.querySelector(".app-packages .list-btn_next").addEventListener("click" , movePacksRight);
 

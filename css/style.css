@@ -629,8 +629,14 @@ html {
   display: inline-block;
 }
 
+.app-packages__item_selected {
+  box-shadow: 0 0 7px 7px rgba(0, 0, 0, 0.1);
+}
+
 .app-packages__face {
   display: block;
+  width: 20.625rem;
+  height: 12.375rem;
   margin-bottom: 1rem;
 }
 
@@ -955,24 +961,68 @@ html {
   border-radius: 0.375rem;
 }
 
-.list-btn_prev {
-   left: 0;
-}
-
-.list-btn_next {
-   right:0;
-}
-
 .list-btn {
   position: absolute;
-  top: 50%;
-  width: 3rem;
-  height: 2.5rem;
+  top: 8rem;
+  width: 2.7rem;
+  height: 2rem;
   margin-top: -1.25rem;
   border: none;
   outline: none;
-  background-color: #afafaf;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
   font-size: 0;
+  cursor: pointer;
+  transition: .9s;
+  transition-property:  opacity; 
+}
+
+.list-btn:after,
+.list-btn:before {
+  content: "";
+  position: absolute;
+  width: 2.5rem;
+  height: 3px;
+  
+  margin-top: -3px;
+  background-color: rgba(128, 126, 128, 0.8);
+  border-radius: 10px;
+}
+
+.list-btn_prev {
+  left: -1.5rem;
+}
+
+.list-btn_next {
+  right:-1.5rem;
+}
+
+.list-btn_prev:before {
+  top: 1.55rem;
+  left: 0;
+  transform: rotate(20deg);
+}
+
+.list-btn_prev:after {
+  top: 0.7rem;
+  left: 0;
+  transform: rotate(-20deg);
+}
+
+.list-btn_next:before {
+  right: 0;
+  top: 1.55rem;
+  transform: rotate(-20deg); 
+}
+
+.list-btn_next:after {
+  right: 0;
+  top: 0.7rem;
+  transform: rotate(20deg);
+}
+
+.btn-hidden {
+  opacity: 0;
 }
 
 .slider {
@@ -980,11 +1030,15 @@ html {
   line-height: 1rem;
 }
 
+.app-packages__slider {
+  margin-top: 1rem;
+}
+
 .slider__point {
   display: inline-block;
   vertical-align: middle;
-  width: 0.5rem;
-  height: 0.5rem;
+  width: 0.8rem;
+  height: 0.8rem;
   margin: 0 0.5rem;
   border-radius:  1rem;
   background-color: #7d7d7d;
@@ -992,8 +1046,8 @@ html {
 }
 
 .slider__point_active {
-  width: 0.8rem;
-  height: 0.8rem;
+  width: 1.4rem;
+  height: 1.4rem;
   background-color: #ff5300;
   border: 2px solid #ff8000;
 }
