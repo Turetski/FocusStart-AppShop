@@ -1,24 +1,7 @@
- /*<div class="app-packages__item">
-            <a href="#"><img class="app-packages__face" src="img/standart-package.png" width="330" height="198" alt="Стандартный пакет"></a>
-            <div class="app-packages__name">СТАНДАРТНЫЙ ПАКЕТ</div>
-            <time class="pub-date" datetime="2012-04-08">08 апреля 2012</time>
-          </div>
-          <div class="app-packages__item">
-            <a href="#"><img class="app-packages__face" src="img/new-bank.png" width="330" height="198" alt="Новый ЦФТ-банк"></a>
-            <div class="app-packages__name">НОВЫЙ ЦФТ-БАНК</div>
-            <time class="pub-date" datetime="2016-09-09">09 сентября 2016</time>
-          </div>
-          <div class="app-packages__item">
-            <a href="#"><img class="app-packages__face" src="img/catalog.png" width="330" height="198" alt="Каталог"></a>
-            <div class="app-packages__name">КАТАЛОГ РАЗРАБОТОК</div>
-            <time class="pub-date" datetime="2015-03-03">03 марта 2015</time>
-          </div>*/
-
-
+(function(){
 var PACK_VISIBLE=3, PACK_COUNT =7, 
     PACKING_INTERVAL = 1200,
     selectedPack;
-
 
 
   function getRandomInt(min, max){
@@ -64,30 +47,19 @@ var PACK_VISIBLE=3, PACK_COUNT =7,
       return "" + myDate.getDate() + " " + parseMonth(myDate.getMonth()) + " " + myDate.getFullYear()
   }
 
-  function getNewPackage(){
-    var i = getRandomInt(1,3);
-    switch(i){
-      case 1: return { 
-        face: "standart-package.png",
-        name: "Стандартный пакет",
-        date: new Date(2012, 04, 08)   
-        }
-      case 2:return { 
-        face: "new-bank.png",
-        name: "Новый ЦФТ-банк",
-        date: new Date(2016, 09, 09)   
-        }
-      case 3:return { 
-        face: "catalog.png",
-        name: "Каталог",
-        date: new Date(2015, 03, 03)   
-        }
-    }
-  }
-  
+    
   function getPackages(){
-    return [getNewPackage(), getNewPackage(), getNewPackage(), getNewPackage(),
-      getNewPackage(), getNewPackage(), getNewPackage(), getNewPackage(), getNewPackage()];
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "api/app_packages.json", true);
+    xhr.onreadystatechange = function(e){
+      if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+        console.log(xhr.responseText);
+      };
+    }
+    xhr.onload = function(){
+      console.log("success!");
+    }
+    xhr.send();
   }
 
   function createPackageNode(package, parent) {
@@ -207,7 +179,8 @@ var PACK_VISIBLE=3, PACK_COUNT =7,
     var btn=document.querySelector(".list-btn_" + btnType);
     btn.classList.remove("btn-hidden");
   }
-addPackages(getPackages(), PACK_COUNT);
+//addPackages(getPackages(), PACK_COUNT);
 document.querySelector(".app-packages .list-btn_prev").addEventListener("click" , movePacksLeft);
 document.querySelector(".app-packages .list-btn_next").addEventListener("click" , movePacksRight);
-
+getPackages();
+})();
