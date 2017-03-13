@@ -627,6 +627,7 @@ html {
 
 .app-packages__item_visible {
   display: inline-block;
+  vertical-align: top;
 }
 
 .app-packages__item_selected {
@@ -646,6 +647,14 @@ html {
   line-height: normal;
   text-transform: uppercase;
   color: #32393d;
+}
+
+.app-packages__controls {
+  display: none;
+}
+
+.app-packages__controls_show {
+  display: block;
 }
 
 .pub-date{

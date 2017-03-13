@@ -1,63 +1,71 @@
 (function(){
 var PACK_VISIBLE=3, PACK_COUNT =7, 
-    PACKING_INTERVAL = 1200,
     selectedPack;
 
 
   function getRandomInt(min, max){
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
-
-  function randomSlice(arr, num){
-    var resultNums = [], result = []
-      arrLength= arr.length,
-      i=0, j=0, k=0;
-    if(arrLength<=num) return arr;
-    while(i<num){
-      k = getRandomInt(0, arrLength-1);
-      for(j=0; j<i; j++) if(resultNums[j]===k) break;
-      if (j===i){
-        resultNums[i]=k;
-        i++;
-      }  
-    }
-    for(i=0; i<num; i++) result[i]= arr[resultNums[i]];
-    return result;
-  }
    
   function parseMonth(m){
     switch (m) {
-      case 1: return "января";
-      case 2: return "февраля";
-      case 3: return "марта";
-      case 4: return "апреля";
-      case 5: return "мая";
-      case 6: return "июня";
-      case 7: return "июля";
-      case 8: return "августа";
-      case 9: return "сентября";
-      case 10: return "октября";
-      case 11: return "ноября";
-      case 12: return "декабря";
-      default: return "?????";
+      case 0: return "января";
+      case 1: return "февраля";
+      case 2: return "марта";
+      case 3: return "апреля";
+      case 4: return "мая";
+      case 5: return "июня";
+      case 6: return "июля";
+      case 7: return "августа";
+      case 8: return "сентября";
+      case 9: return "октября";
+      case 10: return "ноября";
+      case 11: return "декабря";
+      default: return "неверные данные";
     }
   }
 
   function parseDate(myDate){
-      return "" + myDate.getDate() + " " + parseMonth(myDate.getMonth()) + " " + myDate.getFullYear()
+      return "".concat(myDate.getDate(), " ", parseMonth(myDate.getMonth()), " ", myDate.getFullYear() );
   }
 
-    
-  function getPackages(){
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", "api/app_packages.json", true);
-    xhr.onreadystatechange = function(e){
-      if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-        console.log(xhr.responseText);
-      };
+  function getFaceByGuid(guid){
+    var guidData = {
+          "93d91e8f-8321-4fe4-9177-b4baedc8e1bc": "new-bank.png",
+          "0a3dd94d-ba19-4f79-b8e4-7c480c581f60": "standart-package.png",
+          "3a180a5c-3806-48b9-b056-e0a29a0ced88": "catalog.png",
+          "3969c852-7f57-4df9-a2fa-ded8f995085b": "cat.jpg",
+          "39cb133e-1d80-4ff0-b0b3-544b7b237fea": "cat.jpg",
+          "cbf1535c-9d00-4833-9b7b-b8de1384006d": "cat.jpg",
+          "a8dbc0c2-56c1-441c-aef8-5b686c787da3": "cat.jpg",
+          "a01ae8e2-e22e-42a1-8dc7-242b1f587350": "cat.jpg",
+          "b84a54ce-f328-4501-9a66-54a08509f2e1": "cat.jpg",
+          "5a363faa-b9d2-49a3-9f1c-9cb4841d67a6": "cat.jpg",
+        };
+    return guidData[guid];
+  }
+
+  function parsePackages(packs){
+    var len = packs.length,
+        result = [];
+
+    for(var i =0; i<len; i++){
+      result.push(new Object);
+      result[i].name = packs[i].title;
+      result[i].date = new Date(packs[i].lastUpdate*1000);
+      result[i].face = getFaceByGuid(packs[i].guid);
     }
-    xhr.onload = function(){
-      console.log("success!");
+    return result;
+  }
+    
+  function displayAppCatalogs(){
+    var xhr = new XMLHttpRequest();  
+    xhr.open("GET", "api/app_packages.json", true);    
+    xhr.onload = function(e){
+      if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+        addPackages( parsePackages(JSON.parse(xhr.responseText)) , PACK_COUNT);
+      };
+      
     }
     xhr.send();
   }
@@ -105,37 +113,37 @@ var PACK_VISIBLE=3, PACK_COUNT =7,
   }
 
   function addPackages(packs, count) {
-    var packsAdding = packs.slice(0, count),
+    if(count>packs.length) count=packs.length;
+    var packsAdding = [],
         packageContainer = document.querySelector(".app-packages__content");
-    count = packsAdding.length;
-    fillPackageSlider(count);
-    packages =[];
-    selectedPack = ((count / 2) | 0) + count % 2;
-    for(var i=0; i<count; i++){
-      createPackageNode(packsAdding[i], packageContainer);
-    }
-    changePackageVisions();
-  }
 
-  function addPackagesCycle(){
-    document.querySelector(".app-packages__content").innerHTML=""; 
-    addPackages(getPackages(), PACK_COUNT);
-    setTimeout(addPackagesCycle, PACKING_INTERVAL);
+    if(count) {
+      packsAdding = packs.slice(0, count);
+      for(var i=0; i<count; i++){
+        createPackageNode(packsAdding[i], packageContainer);
+      }
+      selectedPack = ((count / 2) | 0) + count % 2;
+      fillPackageSlider(count);
+      changePackageVisions();
+      document.querySelector(".app-packages__controls").classList.add("app-packages__controls_show");
+      document.querySelector(".app-packages .list-btn_prev").addEventListener("click" , movePacksLeft);
+      document.querySelector(".app-packages .list-btn_next").addEventListener("click" , movePacksRight);
+    }  
   }
 
   function changePackageVisions(){
     var packs = document.querySelectorAll(".app-packages__item"),
         points = document.querySelectorAll(".app-packages .slider__point"),
-        first = true, k = 2;
-    count = packs.length;
+        first = true, k = 2,
+        count = packs.length;
 
-    if (selectedPack <= 1) {
+    if (selectedPack <= 1)  {
       selectedPack = 1;
       hideSliderBtn("prev");
     } else showSliderBtn("prev");
 
-    if(selectedPack >= packs.length) {
-      selectedPack = packs.length;
+    if (selectedPack >= count)  {
+      selectedPack = count;
       hideSliderBtn("next");
     } else showSliderBtn("next");
 
@@ -179,8 +187,8 @@ var PACK_VISIBLE=3, PACK_COUNT =7,
     var btn=document.querySelector(".list-btn_" + btnType);
     btn.classList.remove("btn-hidden");
   }
-//addPackages(getPackages(), PACK_COUNT);
-document.querySelector(".app-packages .list-btn_prev").addEventListener("click" , movePacksLeft);
-document.querySelector(".app-packages .list-btn_next").addEventListener("click" , movePacksRight);
-getPackages();
+
+
+displayAppCatalogs();
+
 })();
