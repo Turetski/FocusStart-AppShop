@@ -1,11 +1,6 @@
 (function(){
-var PACK_VISIBLE=3, PACK_COUNT =7, 
-    selectedPack;
-
-
-  function getRandomInt(min, max){
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
+  var PACK_VISIBLE=3, PACK_COUNT =7, 
+      selectedPack;
    
   function parseMonth(m){
     switch (m) {
@@ -40,7 +35,7 @@ var PACK_VISIBLE=3, PACK_COUNT =7,
           "a8dbc0c2-56c1-441c-aef8-5b686c787da3": "cat.jpg",
           "a01ae8e2-e22e-42a1-8dc7-242b1f587350": "cat.jpg",
           "b84a54ce-f328-4501-9a66-54a08509f2e1": "cat.jpg",
-          "5a363faa-b9d2-49a3-9f1c-9cb4841d67a6": "cat.jpg",
+          "5a363faa-b9d2-49a3-9f1c-9cb4841d67a6": "cat.jpg"
         };
     return guidData[guid];
   }
@@ -58,14 +53,14 @@ var PACK_VISIBLE=3, PACK_COUNT =7,
     return result;
   }
     
-  function displayAppCatalogs(){
+  function displayAppPackages(){
     var xhr = new XMLHttpRequest();  
     xhr.open("GET", "api/app_packages.json", true);    
     xhr.onload = function(e){
-      if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+      console.log (xhr.responseText);
+      if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200 && xhr.responseText) {
         addPackages( parsePackages(JSON.parse(xhr.responseText)) , PACK_COUNT);
-      };
-      
+      }else document.querySelector(".app-packages__load-data").classList.add("app-packages__load-data_error");
     }
     xhr.send();
   }
@@ -111,6 +106,12 @@ var PACK_VISIBLE=3, PACK_COUNT =7,
       slider.appendChild(sliderPoint);
     }
   }
+   
+  function setupPackageControls() {
+    document.querySelector(".app-packages__controls").classList.add("app-packages__controls_show");
+    document.querySelector(".app-packages .list-btn_prev").addEventListener("click" , movePacksLeft);
+    document.querySelector(".app-packages .list-btn_next").addEventListener("click" , movePacksRight);
+  }
 
   function addPackages(packs, count) {
     if(count>packs.length) count=packs.length;
@@ -118,6 +119,7 @@ var PACK_VISIBLE=3, PACK_COUNT =7,
         packageContainer = document.querySelector(".app-packages__content");
 
     if(count) {
+      packageContainer.innerHTML= "";
       packsAdding = packs.slice(0, count);
       for(var i=0; i<count; i++){
         createPackageNode(packsAdding[i], packageContainer);
@@ -125,9 +127,7 @@ var PACK_VISIBLE=3, PACK_COUNT =7,
       selectedPack = ((count / 2) | 0) + count % 2;
       fillPackageSlider(count);
       changePackageVisions();
-      document.querySelector(".app-packages__controls").classList.add("app-packages__controls_show");
-      document.querySelector(".app-packages .list-btn_prev").addEventListener("click" , movePacksLeft);
-      document.querySelector(".app-packages .list-btn_next").addEventListener("click" , movePacksRight);
+      setupPackageControls();  
     }  
   }
 
@@ -189,6 +189,6 @@ var PACK_VISIBLE=3, PACK_COUNT =7,
   }
 
 
-displayAppCatalogs();
+  displayAppPackages();
 
 })();
