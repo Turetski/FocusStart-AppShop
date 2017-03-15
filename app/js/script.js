@@ -41,7 +41,7 @@
   }
 
   function setupMainMenu(){
-    document.querySelectorAll
+    /*document.querySelectorAll*/
   }
 
   function parsePackages(packs){
@@ -62,7 +62,6 @@
     var xhr = new XMLHttpRequest();  
     xhr.open("GET", "api/app_packages.json", true);    
     xhr.onload = function(e){
-      console.log (xhr.responseText);
       if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200 && xhr.responseText) {
         addPackages( parsePackages(JSON.parse(xhr.responseText)) , PACK_COUNT);
       }else document.querySelector(".app-packages__load-data").classList.add("app-packages__load-data_error");
