@@ -26,48 +26,16 @@
           </header>
           <nav class="app-catalog__nav">
             <ul class="app-catalog__list">
-              <li class="app-catalog__item">
-                <a href="#" class="app-catalog__link" title="Стандартный пакет">Стандартный пакет</a>
-              </li>
-              <li class="app-catalog__item">
-                <span class="app-catalog__link app-catalog__link_active">Новый ЦФТ-Банк</span>
-              </li>
-              <li class="app-catalog__item">
-                <a href="#" class="app-catalog__link" title="Cash management">Cash management</a>
-              </li>
-              <li class="app-catalog__item ">
-                <a href="safe-rent.html"  class="app-catalog__link" title="Аренда сейфов">Аренда сейфов</a>
-              </li>
-              <li class="app-catalog__item">
-                <a href="#" class="app-catalog__link" title="Банковские гарантии">Банковские гарантии</a>
-              </li>
-              <li class="app-catalog__item">
-                <a href="#" class="app-catalog__link" title="Казначейство">Казначейство</a>
-              </li>
-              <li class="app-catalog__item">
-                <a href="#" class="app-catalog__link" title="Страхование">Страхование</a>
-              </li>
-              <li class="app-catalog__item">
-                <a href="#" class="app-catalog__link" title="Факторинговое обслуживание">Факторинговое обслуживание</a>
-              </li>
-              <li class="app-catalog__item">
-                <a href="#" class="app-catalog__link" title="Переводы средств">Переводы средств</a>
-              </li>
-              <li class="app-catalog__item">
-                <a href="#" class="app-catalog__link" title="Расчетный центр">Расчетный центр</a>
-              </li>
-              <li class="app-catalog__item">
-                <a href="#" class="app-catalog__link" title="Пластиковые карты">Пластиковые карты</a>
-              </li>
-              <li class="app-catalog__item">
-                <a href="#" class="app-catalog__link" title="Финансовый мониторинг">Финансовый мониторинг</a>
-              </li>
-              <li class="app-catalog__item">
-                <a href="#" class="app-catalog__link" title="Дпозиты и вклады">Депозиты и вклады</a>
-              </li>
-              <li class="app-catalog__item">
-                <a href="#" class="app-catalog__link" title="Инвестиции">Инвестиции</a>
-              </li>
+              <template class="app-catalog__item-template">
+                <li class="app-catalog__item">
+                  <a href="#" class="app-catalog__link" title="Стандартный пакет">Стандартный пакет</a>
+                </li>
+              </template>
+              <template class="app-catalog__item-template_active">
+                <li class="app-catalog__item">
+                  <span class="app-catalog__link app-catalog__link_active">Новый ЦФТ-Банк</span>
+                </li>
+              </template>
             </ul>
           </nav>
         </div>
@@ -112,6 +80,7 @@
         </div>
       </section>
       <footer class= "inner-content__footer"></footer>
-    </div>  
+    </div> 
+    <script type="text/javascript" src="js/inner-script.js"></script> 
   </body>
 </html>

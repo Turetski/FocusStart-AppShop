@@ -1,53 +1,53 @@
 [
 {
-	"id":4,
-	"title":"Рассчетно-кассовое обслуживание", 
+	"id":14,
+	"title":"Инвестиции", 
 	"lastUpdate":486172800, 
-	"guid":"3969c852-7f57-4df9-a2fa-ded8f995085b"},
+	"guid":"8213058c-ffba-4568-920a-2c6d581006b9"},
 {
-	"id":5,
-	"title":"Документарные операции", 
+	"id":7,
+	"title":"Страхование", 
 	"lastUpdate":486172800, 
-	"guid":"39cb133e-1d80-4ff0-b0b3-544b7b237fea"},
+	"guid":"a01996f2-f591-433d-ade8-eaae86c5c9fc"},
 {
-	"id":2,
+	"id":1,
 	"title":"Стандартный пакет", 
 	"lastUpdate":1333843200, 
 	"guid":"0a3dd94d-ba19-4f79-b8e4-7c480c581f60"},
 {
-	"id":1,
+	"id":2,
 	"title":"Новый ЦФТ Банк", 
 	"lastUpdate":1473379200, 
 	"guid":"93d91e8f-8321-4fe4-9177-b4baedc8e1bc"},
 
 {
-	"id":3,
+	"id": 15,
 	"title":"Каталог разработок", 
 	"lastUpdate":1425340800, 
-	"guid":"3a180a5c-3806-48b9-b056-e0a29a0ced88"},	
+	"guid":"6d28cb24-db73-49b1-b736-f93c6aba66cd"},	
 {
-	"id":6,
-	"title":"Драгметаллы и монеты", 
+	"id":3,
+	"title":"Cash management", 
 	"lastUpdate":486172800, 
-	"guid":"cbf1535c-9d00-4833-9b7b-b8de1384006d"},
-{
-	"id":7,
-	"title":"Страхование", 
-	"lastUpdate":486172800, 
-	"guid":"a8dbc0c2-56c1-441c-aef8-5b686c787da3"},
+	"guid":"0a3dd94d-ba19-4f79-b8e4-7c467adsf960"},
 {
 	"id":8,
-	"title":"Золотая корона", 
+	"title":"Факторинговое обслуживание", 
 	"lastUpdate":486172800, 
-	"guid":"a01ae8e2-e22e-42a1-8dc7-242b1f587350"},
+	"guid":"5df818b6-1942-4959-b099-c042495ef805"},
 {
-	"id":9,
-	"title":"Кредитование", 
+	"id":11,
+	"title":"Пластиковые карты", 
 	"lastUpdate":486172800, 
-	"guid":"b84a54ce-f328-4501-9a66-54a08509f2e1"},
+	"guid":"9116354f-48ae-4fd0-8656-39dfb0aa7272"},
 {
-	"id":10,
-	"title":"Дистанционные сервисы", 
+	"id": 5,
+	"title":"Банковские карты", 
 	"lastUpdate":486172800, 
-	"guid":"5a363faa-b9d2-49a3-9f1c-9cb4841d67a6"}
+	"guid":"dddee02e-f620-48d5-b0da-e9cace1c103c"},
+{
+	"id":13,
+	"title":"Депозиты и вклады", 
+	"lastUpdate":486172800, 
+	"guid":"d226f5eb-373d-47d0-9e7a-ff6782b829fc"}
 ]

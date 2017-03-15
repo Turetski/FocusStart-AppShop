@@ -28,16 +28,20 @@
     var guidData = {
           "93d91e8f-8321-4fe4-9177-b4baedc8e1bc": "new-bank.png",
           "0a3dd94d-ba19-4f79-b8e4-7c480c581f60": "standart-package.png",
-          "3a180a5c-3806-48b9-b056-e0a29a0ced88": "catalog.png",
-          "3969c852-7f57-4df9-a2fa-ded8f995085b": "cat.jpg",
-          "39cb133e-1d80-4ff0-b0b3-544b7b237fea": "cat.jpg",
-          "cbf1535c-9d00-4833-9b7b-b8de1384006d": "cat.jpg",
-          "a8dbc0c2-56c1-441c-aef8-5b686c787da3": "cat.jpg",
-          "a01ae8e2-e22e-42a1-8dc7-242b1f587350": "cat.jpg",
-          "b84a54ce-f328-4501-9a66-54a08509f2e1": "cat.jpg",
-          "5a363faa-b9d2-49a3-9f1c-9cb4841d67a6": "cat.jpg"
+          "6d28cb24-db73-49b1-b736-f93c6aba66cd": "catalog.png",
+          "8213058c-ffba-4568-920a-2c6d581006b9": "cat.jpg",
+          "a01996f2-f591-433d-ade8-eaae86c5c9fc": "cat.jpg",
+          "0a3dd94d-ba19-4f79-b8e4-7c467adsf960": "cat.jpg",
+          "5df818b6-1942-4959-b099-c042495ef805": "cat.jpg",
+          "9116354f-48ae-4fd0-8656-39dfb0aa7272": "cat.jpg",
+          "dddee02e-f620-48d5-b0da-e9cace1c103c": "cat.jpg",
+          "d226f5eb-373d-47d0-9e7a-ff6782b829fc": "cat.jpg"
         };
     return guidData[guid];
+  }
+
+  function setupMainMenu(){
+    document.querySelectorAll
   }
 
   function parsePackages(packs){
@@ -49,6 +53,7 @@
       result[i].name = packs[i].title;
       result[i].date = new Date(packs[i].lastUpdate*1000);
       result[i].face = getFaceByGuid(packs[i].guid);
+      result[i].id = packs[i].id;
     }
     return result;
   }
@@ -76,6 +81,7 @@
     packImg.setAttribute("src", "img/" + package.face);
     packImg.setAttribute("alt", package.name);
     packLink.setAttribute("href", "#");
+    packLink.setAttribute("data-app-id", package.id);
     packLink.appendChild(packImg);
 
     packName.classList.add("app-packages__name");

@@ -1,14 +1,10 @@
 (function(){
-  function currentActiveApp(){
-    return 3;// заглушечка
-  }
-
   function getAppLinkByGuid(guid){
     var guidData = {
           "0a3dd94d-ba19-4f79-b8e4-7c480c581f60": "#",
           "93d91e8f-8321-4fe4-9177-b4baedc8e1bc": "new-bank.html",
           "0a3dd94d-ba19-4f79-b8e4-7c467adsf960": "#",
-          "6df8546e-af6d-4561-b500-789ca67b7f08": "#",
+          "6df8546e-af6d-4561-b500-789ca67b7f08": "safe-rent.html",
           "dddee02e-f620-48d5-b0da-e9cace1c103c": "#",
           "31f138a7-47e8-4742-8f7c-7db9ddb5dbe0": "#",
           "a01996f2-f591-433d-ade8-eaae86c5c9fc": "#",
@@ -31,6 +27,7 @@
       result.push(new Object);
       result[i].name = items[i].title;
       result[i].link = getAppLinkByGuid(items[i].guid);
+      result[i].id= items[i].id;
     }
     return result;
   }
@@ -44,15 +41,16 @@
         link =clone.querySelector(".app-catalog__link");  
     link.setAttribute("href", catalogItemData.link);
     link.setAttribute("title", catalogItemData.name);
+    link.setAttribute("data-app-id", catalogItemData.id);
     link.innerHTML = catalogItemData.name;
     parent.appendChild(clone);
   }
 
-  function  fillAppCatalog(itemsData) {
+  function  fillAppCatalog(itemsData, current) {
     var l= itemsData.length,
         appCatalog = document.querySelector(".app-catalog__list");
     for(var i=0; i<l; i++)
-      createAppCatalogItemNode(itemsData[i], appCatalog, i=== currentActiveApp()) ;    
+      createAppCatalogItemNode(itemsData[i], appCatalog, i===current) ;    
   }
 
   function displayAppCatalogs(){

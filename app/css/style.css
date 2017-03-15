@@ -559,7 +559,7 @@ html {
   color: inherit;
 }
 
-.main-nav__span {
+.main-nav__link_active {
   color: #ed1b2f;
 }
 

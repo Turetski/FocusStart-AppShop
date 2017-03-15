@@ -1,21 +1,25 @@
 [
 {
 	"id":1,
-	"title":"Стандартный пакет", 
+	"title":"Стандартный пакет",
+	"lastUpdate":1333843200, 
 	"guid":"0a3dd94d-ba19-4f79-b8e4-7c480c581f60"},
 {
 	"id":2,
 	"title":"Новый ЦФТ-Банк", 
-	"guid":"93d91e8f-8321-4fe4-9177-b4baedc8e1bc"},
+	"guid":"93d91e8f-8321-4fe4-9177-b4baedc8e1bc",
+	"description": "",
+	"requirements": "",
+	"features":["","",""]},
 {
 	"id":3,
 	"title":"Cash management", 
+	"lastUpdate":1333843200, 
 	"guid":"0a3dd94d-ba19-4f79-b8e4-7c467adsf960"},
 {
 	"id":4,
 	"title":"Аренда сейфов", 
 	"guid":"6df8546e-af6d-4561-b500-789ca67b7f08"},
-
 {
 	"id":5,
 	"title":"Банковские гарантии",
