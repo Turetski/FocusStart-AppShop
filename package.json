@@ -1,0 +1,22 @@
+{
+  "name": "appshop",
+  "version": "0.0.1",
+  "description": "training project in focus start school",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Turetski/FocusStart-AppShop.git"
+  },
+  "author": "Motylev Alexey",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Turetski/FocusStart-AppShop/issues"
+  },
+  "homepage": "https://github.com/Turetski/FocusStart-AppShop#readme",
+  "devDependencies": {
+    "browser-sync": "^2.18.8"
+  }
+}
