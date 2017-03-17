@@ -1,6 +1,8 @@
 (function(){
   var PACK_VISIBLE=3, PACK_COUNT =7, 
-      selectedPack;
+      selectedPack,
+      appInfoData = [],
+      appCatalogItems = [];
    
   function parseMonth(m){
     switch (m) {
@@ -37,11 +39,8 @@
           "dddee02e-f620-48d5-b0da-e9cace1c103c": "cat.jpg",
           "d226f5eb-373d-47d0-9e7a-ff6782b829fc": "cat.jpg"
         };
-    return guidData[guid];
-  }
-
-  function setupMainMenu(){
-    /*document.querySelectorAll*/
+    if (guidData[guid]) return ("img/" + guidData[guid]);
+    else return "img/cat.jpg";
   }
 
   function parsePackages(packs){
@@ -53,6 +52,7 @@
       result[i].name = packs[i].title;
       result[i].date = new Date(packs[i].lastUpdate*1000);
       result[i].face = getFaceByGuid(packs[i].guid);
+      result[i].guid = packs[i].guid;
       result[i].id = packs[i].id;
     }
     return result;
@@ -64,7 +64,7 @@
     xhr.onload = function(e){
       if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200 && xhr.responseText) {
         addPackages( parsePackages(JSON.parse(xhr.responseText)) , PACK_COUNT);
-      }else document.querySelector(".app-packages__load-data").classList.add("app-packages__load-data_error");
+      }else /*сообщить пользователю об ошибке.*/;
     }
     xhr.send();
   }
@@ -72,16 +72,19 @@
   function createPackageNode(package, parent) {
     var packBody = document.createElement('div'); 
     var packLink = document.createElement('a');
-    var packImg = document.createElement('img');
     var packName = document.createElement('div');
     var packDate = document.createElement('div');
 
-    packImg.classList.add("app-packages__face")
-    packImg.setAttribute("src", "img/" + package.face);
-    packImg.setAttribute("alt", package.name);
+    packLink.classList.add("app-packages__face");
+    packLink.style.backgroundImage= "".concat("url(", getFaceByGuid(package.guid),")");
     packLink.setAttribute("href", "#");
     packLink.setAttribute("data-app-id", package.id);
-    packLink.appendChild(packImg);
+    packLink.addEventListener("click", function(e){
+      e.preventDefault();
+      inactiveMainMenuLinks();
+      document.querySelector(".main-nav__link[data-destination='catalog'").classList.add("main-nav__link_active");
+      showCatalog( e.target.getAttribute("data-app-id") );
+    });
 
     packName.classList.add("app-packages__name");
     packName.innerHTML=package.name;
@@ -105,6 +108,7 @@
       sliderPoint.classList.add("slider__point");
       sliderPoint.setAttribute("data-num", i+1);
       sliderPoint.addEventListener("click", function(e){
+        e.preventDefault();
         selectedPack = parseInt( e.target.getAttribute("data-num") );
         changePackageVisions(); 
       })
@@ -118,7 +122,7 @@
     document.querySelector(".app-packages .list-btn_next").addEventListener("click" , movePacksRight);
   }
 
-  function addPackages(packs, count) {
+  function addPackages(packs, count, parent) {
     if(count>packs.length) count=packs.length;
     var packsAdding = [],
         packageContainer = document.querySelector(".app-packages__content");
@@ -193,7 +197,194 @@
     btn.classList.remove("btn-hidden");
   }
 
+  function showErrorMessage(container, message){
+    var template=document.querySelector(".error-message-template"),
+        clone = document.importNode(template.content, true);
+    clone.querySelector(".error-message").innerHTML = message;
+    container.innerHTML="";
+    container.appendChild(clone);
+  }
 
-  displayAppPackages();
+  function appCatalogLinkClick(e){
+    e.preventDefault();
+    var currentLink = document.querySelector(".app-catalog__link_active"),
+        targetId = e.target.getAttribute("data-app-id");
+    if (currentLink) if (targetId===currentLink.getAttribute("data-app-id") ) return;
+
+    var catalogLinks = document.querySelectorAll(".app-catalog__link"),
+        len= catalogLinks.length,
+        i=0;
+    while((catalogLinks[i].getAttribute("data-app-id") !== targetId)&& (i<len) ) i++;
+    if(i<len) {
+      if(currentLink) currentLink.classList.remove("app-catalog__link_active");
+      catalogLinks[i].classList.add("app-catalog__link_active");
+      showAppInfo(catalogLinks[i].getAttribute("data-app-id"));
+    }  
+  }
+  
+  function createAppInfoNode(container, appData){
+    var template = document.querySelector(".app-info-template"),
+        clone = document.importNode(template.content, true),
+        featuresCount = appData.features.length,
+        featuresList = clone.querySelector(".custom-ul1"), 
+        featureItem;
+    clone.querySelector(".page-title").innerHTML = appData.title; 
+    clone.querySelector(".app-presentation .pub-date").innerHTML = parseDate(new Date (appData.lastUpdate*1000) );
+    clone.querySelector(".app-presentation__description").innerHTML = appData.description.replace(/[\n\r]/g, '<br>');
+    clone.querySelector(".app-presentation__requirements").innerHTML = appData.requirements.replace(/[\n\r]/g, '<br>');
+    clone.querySelector(".app-presentation__face").style.backgroundImage= "".concat("url(", getFaceByGuid(appData.guid),")");
+    featuresList.innerHTML = "";
+    for(var i = 0; i<featuresCount; i++) {
+      featureItem = document.createElement('li');
+      featureItem.innerHTML=appData.features[i].replace(/[\n\r]/g, '<br>');
+      featureItem.classList.add("custom-ul1__item");
+      featuresList.appendChild(featureItem);
+    }
+    container.innerHTML="";
+    container.appendChild(clone);
+  }
+  
+  
+
+  function showAppInfo(appId){
+    var container = document.querySelector(".inner-content__right-column"),
+        appDataLen = appInfoData.length,
+        link;
+    if(appId){
+      link=document.querySelector(".app-catalog__link[data-app-id='".concat(appId,"']"));
+    } else{
+      link = document.querySelector(".app-catalog__link");
+      appId = link.getAttribute("data-app-id");
+    }
+    if(!link){
+      showErrorMessage(container, "Данные приложения не загружены"); 
+      return;
+    }
+    link.classList.add("app-catalog__link_active");
+    for(var appIndex= 0; appIndex<appDataLen; appIndex++) if (appInfoData[appIndex].id==appId) break;
+    ( appDataLen && (appIndex<appDataLen) ) ?
+      createAppInfoNode(container, appInfoData[appIndex]):
+      showErrorMessage(container, "Данные приложения не загружены"); 
+    
+  }
+
+  function parseCatalogItems(items){
+    var len = items.length,
+        result = [];
+    for(var i =0; i<len; i++){
+      result.push(new Object);
+      result[i].name = items[i].title;
+      result[i].id= items[i].id;
+    }
+    return result;
+  }
+
+  function createAppCatalogItemNode(catalogItemData, parent){
+    var template = document.querySelector(".app-catalog__item-template"),
+        clone = document.importNode(template.content, true),
+        link =clone.querySelector(".app-catalog__link");  
+    link.setAttribute("title", catalogItemData.name);
+    link.setAttribute("data-app-id", catalogItemData.id);
+    link.innerHTML = catalogItemData.name;
+    link.addEventListener("click", appCatalogLinkClick)
+    parent.appendChild(clone);
+  }
+  
+  function  fillAppCatalog() {
+    var l= appCatalogItems.length,
+        appCatalog = document.querySelector(".app-catalog__list");
+    for(var i=0; i<l; i++)
+      createAppCatalogItemNode(appCatalogItems[i], appCatalog) ;   
+  }
+
+  function loadAppCatalogs(){
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "api/app_catalog_packages.json", true);    
+      xhr.onload = function(e){
+        if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200 && xhr.responseText) {
+          appCatalogItems = parseCatalogItems(JSON.parse(xhr.responseText));
+        }else {/*здесь обработчик ошибки*/};
+      }
+      xhr.send();
+  }
+
+  function loadAppInfo(){
+      var xhr = new XMLHttpRequest(); 
+      xhr.open("GET", "api/app_info.json", true);    
+      xhr.onload = function(e){
+        if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200 && xhr.responseText) {
+          appInfoData = JSON.parse(xhr.responseText);
+        }else {/*здесь обработчик ошибки*/};
+      }
+      xhr.send();
+  }
+
+  function showMainPage(){
+    var container = document.querySelector(".app-content"),
+        template = document.querySelector(".main-page-template"),
+        clone =  document.importNode(template.content, true);
+    container.innerHTML="";
+    container.appendChild(clone);
+    displayAppPackages();
+  }
+  
+  function showAboutUs(){
+    var container = document.querySelector(".app-content"),
+        div = document.createElement('div');
+    div.innerHTML="Этот раздел в разработке.";
+    div.classList.add("wrapper");
+    container.innerHTML="";
+    container.appendChild(div);     
+  }
+
+  function showInnerPage(){
+    var container = document.querySelector(".app-content"),
+        template = document.querySelector(".catalog-template"),
+        clone =  document.importNode(template.content, true);
+    container.innerHTML="";
+    container.appendChild(clone);
+  }
+  
+  function inactiveMainMenuLinks(){
+    var links=document.querySelectorAll(".main-nav__link"),
+          len = links.length;
+      for(var i = 0; i<len; i++) links[i].classList.remove("main-nav__link_active");
+  }
+
+  function showCatalog(appId){
+    showInnerPage();
+    fillAppCatalog();
+    showAppInfo(appId);
+  }
+
+  function initMainNav(){
+    var links=document.querySelectorAll(".main-nav__link"),
+        len = links.length;
+    for(var i = 0; i<len; i++) links[i].addEventListener("click", function(e){
+      e.preventDefault();
+      if( e.target.classList.contains("main-nav__link_active") ) return;
+      inactiveMainMenuLinks();
+      e.target.classList.add("main-nav__link_active");
+      switch (e.target.getAttribute("data-destination")) {
+        case 'main': 
+          showMainPage();
+          break;
+        case 'catalog': 
+          showCatalog();        
+          break;
+        case 'about-us': 
+          showAboutUs();
+      }
+    });    
+  }
+
+  function appShopStart(){
+    if(!appInfoData.length) loadAppCatalogs();
+    if(!appCatalogItems.length) loadAppInfo();
+    initMainNav();
+    showMainPage();
+  }
+
+  appShopStart();
 
 })();

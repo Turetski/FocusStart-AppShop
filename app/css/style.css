@@ -6,7 +6,7 @@
 
 @font-face {
     font-family: 'ArialMT'; 
-    src: local("ArialMT"), url('ArialMT.ttf');
+    src: local("ArialMT")/*, url('ArialMT.ttf')*/;
    }
 
 html {
@@ -505,7 +505,8 @@ html {
   display: block;
 }
 
-.container {
+.main-container {
+  min-width: 73.75rem;
   background-color:  #f1f1f1;
 }
 
@@ -561,6 +562,7 @@ html {
 
 .main-nav__link_active {
   color: #ed1b2f;
+  cursor: default;
 }
 
 .main-page {
@@ -953,7 +955,7 @@ html {
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
-  background-image: url(../img/new-bank.png);
+  
 }
 
 .custom-ul1 {
