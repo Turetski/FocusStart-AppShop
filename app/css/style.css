@@ -1071,3 +1071,11 @@ html {
   background-color: #ff5300;
   border: 2px solid #ff8000;
 }
+
+.error-message {
+  font-size: 1rem;
+  line-height: normal;
+  text-align: center;
+  font-weight: bold;
+  color: #f00;
+}

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <title>Магазин приложений: корзина</title>
+    <meta charset="utf-8">
+    <link href="css/style.css" type="text/css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">  
+      <header class="main-header">
+        <div class="wrapper clearfix">
+          <a href="index.html" class="logo-img"></a>
+          <nav class="main-nav">
+            <ul class="main-nav__list">
+              <li class="main-nav__element"><a class="main-nav__link" href="index.html" title="Главная страница">Главная</a></li>
+              <li class="main-nav__element"><span class="main-nav__link main-nav__link_active">Каталог приложений</span></li>
+              <li class="main-nav__element"><a class="main-nav__link" href="#" title="О компании">О компании</a></li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+      <section class="inner-content clearfix wrapper">
+        <div class="app-catalog inner-content__left-column">
+          <header class="app-catalog__header">
+            <h2 class="app-catalog__title">Каталог приложений</h2>
+          </header>
+          <nav class="app-catalog__nav">
+            <ul class="app-catalog__list">      
+            </ul>
+          </nav>
+        </div>
+        <div class="inner-content__right-column"> 
+        </div>
+      </section>
+      <footer class= "inner-content__footer"></footer>
+    </div> 
+
+    <template class="app-catalog__item-template">
+      <li class="app-catalog__item">
+        <a href="#" class="app-catalog__link" title="Стандартный пакет">Стандартный пакет</a>
+      </li>
+    </template>
+    <template class = "error-message-template">
+      <div class = "error-message"></div>
+    </template>
+    <template class = "inner-content__template">
+      <div class="app-info">
+        <h2 class="page-title page-title_border-bottom"></h2>
+        <div class="app-presentation clearfix">
+          <div class= "app-presentation__left-column">
+            <time class="pub-date" datetime="2016-09-09">09 сентября 2016</time>
+            <p class="app-presentation__text app-presentation__description">
+            </p>
+            <p class="app-presentation__text ">
+              <strong class="app-presentation__objecive">Требования: </strong>
+              <span class="app-presentation__requirements"></span>
+            </p>
+          </div>
+          <div class= "app-presentation__right-column">
+            <div class="app-presentation__face"></div>
+            <a class="basic-btn basic-btn_red" href="#" title="Добавить в корзину">В корзину</a>
+          </div>
+        </div>
+        <h2 class="page-title page-title_border-bottom">Основные функции</h2>
+        <ul class="custom-ul1">
+        </ul>
+      </div>  
+    </template>
+    <script type="text/javascript" src="js/inner-script.js"></script> 
+  </body>
+</html>
