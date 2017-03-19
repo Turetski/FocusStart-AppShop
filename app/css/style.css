@@ -14,6 +14,13 @@ html {
   font-size: 100%;
 }
 
+@keyframes bounce {
+  0%    {transform: translateY(-2000px);}
+  70%   {transform: translateY(30px);}
+  90%   {transform: translateY(-10px);}
+  100%  {transform: translateY(0);}
+}
+
 .clearfix:after {
   content:"";
   display: block;
@@ -39,10 +46,11 @@ html {
 }
 
 .cart-entry-btn__icon {
+  display: block;
   width: 2.5rem;
   height: 2.5rem;
   float: left;
-  background: url('../img/cart.svg') center no-repeat;
+  fill:#adafb2;
 }
 
 .cart-entry-btn__info {
@@ -53,40 +61,89 @@ html {
 .cart-entry-btn__info-icon {
   display: block;
   float: left;
+  padding: 0.2rem;
   height: 1.25rem;
   width: 1.25rem;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 0.8rem 0.8rem;
-}
-
-.cart-entry-btn__info-icon_plus {
-  background-image: url('../img/plus.svg');
-}
-
-.cart-entry-btn__info-icon_ruble {
-  background-image: url('../img/ruble.svg');
+  fill:#adafb2;
 }
 
 .cart-entry-btn__count,
 .cart-entry-btn__sum {
   font-size: 1rem;
   line-height: 1.25rem;
-  color: #000;
+  color: #adafb2;
 }
 
-.cart{
-  display: none;
+.cart-entry-btn__info-icon_green,
+.cart-entry-btn__icon_green {
+  fill: #0c0;
+}
+
+.cart {
+  display: block;
   font-family: sans-serif;
   width: 80rem;
   height: 50rem;
   margin: 0 auto;
   text-align: center;
+  background-color: #fff;
+  overflow-x: hidden;
 }
 
-.cart-base{
+.cart__content {
+  position: absolute;
+  width: 100%;
+  transition-property: margin-left;
+  transition: 0.7s;
+}
+
+.cart-base {
   padding: 0 5rem;
   text-transform: uppercase;
+  margin-left: 0;
+}
+
+.cart-payment{
+  padding: 0 15rem;
+  margin-left: 80rem;
+}
+
+.cart-contacts {
+  padding: 0 9.875rem;
+  text-align: left;
+  margin-left: 160rem;
+}
+
+.cart-complete {
+  margin-left: 240rem;
+}
+
+.cart__content_pos_0 {
+  margin-left: 0;
+}
+
+.cart__content_pos_1 {
+  margin-left: 80rem;
+}
+
+.cart__content_pos_2 {
+  margin-left: 160rem;
+}
+
+.cart__content_pos_3 {
+  margin-left: 240rem;
+}
+
+.cart__content_pos_-1 {
+  margin-left: -80rem;
+}
+
+.cart__content_pos_-2 {
+  margin-left: -160rem;
+}
+
+.cart__content_pos_-3 {
+  margin-left: -240rem;
 }
 
 .cart-nav {
@@ -167,6 +224,7 @@ html {
 
 .cart-nav__btn_done .cart-nav__btn-face{
   font-size:0;
+  cursor: pointer;
 }
 
 .cart-nav__btn_done .cart-nav__btn-face:after,
@@ -194,6 +252,31 @@ html {
   width: 0.7rem;
   top: 1rem;
   left: 1.025rem;
+}
+
+.modal-content__wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding-top: 4rem;
+  /*animation: bounce 0.6s;*/
+}
+
+.modal-content .cart {
+   position: relative;
+   z-index: 5;
+}
+
+.modal-overlay {
+  position: fixed;
+  display: block;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .price-table {
@@ -231,7 +314,7 @@ html {
   width: 10rem;
 }
 
-.btn-close {
+.btn-del {
   position: relative;
   display: inline-block;
   vertical-align: top;
@@ -243,8 +326,8 @@ html {
   font-size: 0;
 }
 
-.btn-close:after,
-.btn-close:before {
+.btn-del:after,
+.btn-del:before {
   content: "";
   position: absolute;
   top: 50%;
@@ -256,11 +339,11 @@ html {
   background-color: #868686;
 }
 
-.btn-close:after {
+.btn-del:after {
   transform: rotate(45deg);
 }
 
-.btn-close:before {
+.btn-del:before {
   transform: rotate(-45deg);
 }
 
@@ -344,9 +427,55 @@ html {
   float: right;
 }
 
-.cart-payment{
-  padding: 0 15rem;
+.cart-btn_disabled,
+.cart-btn_disabled:hover {
+  border: solid 3px #9fa3a7;
+  background-color: #fff;
+  color: #9fa3a7;
+  cursor: default;
 }
+
+.btn-close-cart {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2rem;
+  height: 2rem;
+  background-color: inherit;
+  border: none;
+  outline: none;
+  font-size: 0;
+  cursor: pointer;
+
+}
+
+.btn-close-cart:after,
+.btn-close-cart:before {
+  content: "";
+  position: absolute;
+  top: 0.9rem;
+  left: -0.25rem;
+  width: 2.5rem;
+  height: 4px;
+  border-radius: 10rem;
+  background-color: #c6c6c6;
+  transition-property: background-color;
+  transition: 0.5s;
+}
+
+.btn-close-cart:hover:after,
+.btn-close-cart:hover:before {
+  background-color: #868686;
+}
+
+.btn-close-cart:after {
+  transform: rotate(45deg);
+}
+
+.btn-close-cart:before {
+  transform: rotate(-45deg);
+}
+
 
 .payment-form__method {
   margin-bottom: 2.5rem;
@@ -471,11 +600,6 @@ html {
   width: 3.875rem;
   height: 2.375rem;
   margin-bottom: 1.375rem;
-}
-
-.cart-contacts {
-  padding: 0 9.875rem;
-  text-align: left;
 }
 
 .cart-title {

@@ -1,5 +1,103 @@
 (function(){
-   
+  var sugarOop = {
+    inherit: function(cls, superClass) {
+      cls.prototype = Object.create(superClass.prototype);
+      cls.prototype.constructor = cls;
+     cls.SuperClass = superClass;
+    },
+
+    cls: function (parent, fn) {
+      var c = function() { this.__init__ && this.__init__.apply(this, arguments); },
+      key;
+      parent && this.inherit(c, parent);
+      fn.call(c.prototype);
+      return c;
+    },
+
+    super: function(cls) {
+      if (cls.SuperClass) return cls.SuperClass.prototype;
+      if (cls.mixin) return cls;
+      return cls.prototype;
+    }
+  };
+  var Cart=sugarOop.cls(null, function(){
+        this.__init__ = function() {
+          this._data = [];
+        };
+        this.put = function(appData){
+          var len = this._data.length,
+              i=0;
+          while(i<len && appData.id != this._data[i].id)i++;
+          if(i>=len) {
+            this._data.push(appData);
+            return true;
+          } 
+          return false;
+        }
+        this.count = function(){return this._data.length}
+        this.calcPrice = function(){
+          var total = 0,
+              len = this.count();
+          for(var i =0; i<len;i++ ) total+= parseFloat(this._data[i].price);
+          return total;  
+        }
+        this.isEmpty = function(){
+          if(this.count()===0) return true;
+          else return false;
+        }
+        this.getData = function(num){ return this._data[num]}
+        this.remove = function(index){
+          this._data.splice(index,1);
+        }
+        this.clear = function(){this._data = []}
+      }),
+      CartGood = sugarOop.cls(null, function(){
+        this.__init__ = function(id, name, price) {
+          this.name = name;
+          this.price = price;
+          this.id = id;
+        }
+      }),
+      myCart = new Cart;
+
+  function refreshCartEntryBtn(){
+    var i,
+        icons = document.querySelectorAll(".cart-entry-btn__info-icon"), len = icons.length;
+    document.querySelector(".cart-entry-btn__count").innerHTML= myCart.count();
+    document.querySelector(".cart-entry-btn__sum").innerHTML= floatRound(myCart.calcPrice(),2);
+    if(myCart.isEmpty()){
+      document.querySelector(".cart-entry-btn__icon").classList.remove("cart-entry-btn__icon_green");
+      for(i=0; i< len; i++) icons[i].classList.remove("cart-entry-btn__info-icon_green");
+    } else {
+    for(i=0; i< len; i++) 
+      document.querySelector(".cart-entry-btn__icon").classList.add("cart-entry-btn__icon_green");
+      for(i=0; i< len; i++) icons[i].classList.add("cart-entry-btn__info-icon_green");
+    }
+  }
+
+  function addAppInCart(e){
+    e.preventDefault();
+    var name = document.querySelector(".app-info .page-title").innerHTML,
+        price = parseFloat(document.querySelector(".app-presentation__price").innerHTML),
+        id = document.querySelector(".inner-content__right-column").getAttribute("data-app-id"),
+        data = new CartGood(id, name, price);
+    if( myCart.put(data)) refreshCartEntryBtn();  
+  }
+
+  function getDecimal(num, count){
+    var result;
+    if (count<1) return 0;
+    num = Math.abs(num);
+    result = num-Math.floor(num);
+    for(var i=0;  i<count; i++) result*=10;
+    return Math.floor(result);
+  }
+  
+  function floatRound(num, count){
+    var c = Math.pow(10,count);
+    return Math.floor(num*c)/c;
+  }
+
   function parseMonth(m){
     switch (m) {
       case 0: return "января";
@@ -21,6 +119,11 @@
   function parseDate(myDate){
       return "".concat(myDate.getDate(), " ", parseMonth(myDate.getMonth()), " ", myDate.getFullYear() );
   }
+  
+  function createClone(tempSelector) {
+    var template = document.querySelector(tempSelector);
+    return document.importNode(template.content, true);
+  }
 
   function getFaceByGuid(guid){
     var guidData = {
@@ -39,12 +142,11 @@
     else return "img/cat.jpg";
   }
 
-  function showErrorMessage(container, message){
-    var template=document.querySelector(".error-message-template"),
-        clone = document.importNode(template.content, true);
+  function showErrorMessage(container, message, saveInnerHTML){
+    var clone = createClone(".error-message-template");
     clone.querySelector(".error-message").innerHTML = message;
-    container.innerHTML="";
-    container.appendChild(clone);
+    if(!saveInnerHTML)container.innerHTML="";
+    container.insertBefore(clone,container.firstChild);
   }
   
   function loadAppPackages(){
@@ -216,15 +318,16 @@
     }
   
     function createAppInfoNode(container, appData){
-      var template = document.querySelector(".app-info-template"),
-          clone = document.importNode(template.content, true),
+      var clone = createClone(".app-info-template"),
           featuresCount = appData.features.length,
           featuresList = clone.querySelector(".custom-ul1"), 
+          buyBtn = clone.querySelector(".app-presentation_buy-btn"),
           featureItem;
       clone.querySelector(".page-title").innerHTML = appData.title; 
       clone.querySelector(".app-presentation .pub-date").innerHTML = parseDate(new Date (appData.lastUpdate*1000) );
       clone.querySelector(".app-presentation__description").innerHTML = appData.description.replace(/[\n\r]/g, '<br>');
       clone.querySelector(".app-presentation__requirements").innerHTML = appData.requirements.replace(/[\n\r]/g, '<br>');
+      clone.querySelector(".app-presentation__price").innerHTML = appData.price;
       clone.querySelector(".app-presentation__face").style.backgroundImage= "".concat("url(", getFaceByGuid(appData.guid),")");
       featuresList.innerHTML = "";
       for(var i = 0; i<featuresCount; i++) {
@@ -233,7 +336,9 @@
         featureItem.classList.add("custom-ul1__item");
         featuresList.appendChild(featureItem);
       }
+      buyBtn.addEventListener("click", addAppInCart);
       container.innerHTML="";
+      container.setAttribute("data-app-id", appData.id);
       container.appendChild(clone);
     }
     
@@ -282,8 +387,7 @@
     }
 
     function createAppCatalogItemNode(catalogItemData, parent){
-      var template = document.querySelector(".app-catalog__item-template"),
-          clone = document.importNode(template.content, true),
+      var clone = createClone(".app-catalog__item-template"),
           link =clone.querySelector(".app-catalog__link");  
       link.setAttribute("title", catalogItemData.name);
       link.setAttribute("data-app-id", catalogItemData.id);
@@ -369,11 +473,106 @@
     });    
   }
 
+  function initCartWindow(){
+    var parentContainer = document.querySelector(".modal-content"),
+        clone = createClone(".cart-window-template"),
+        cartBaseContainer = clone.querySelector(".cart-base"),
+        tableClone = createClone(".cart-table-template"),
+        tableRowCLone, btnDel,
+        btnNext = clone.querySelector(".cart-link_on_payment"),
+        btnClose = clone.querySelector(".btn-close-cart"),
+        btnCompleteClose = clone.querySelector(".cart-complete__close-btn"),
+        priceTotal =clone.querySelector(".price-plate__total"),
+        priceCents =clone.querySelector(".price-plate__cents"),
+        cartLinks = clone.querySelectorAll(".cart-link"), len=cartLinks.length;
+
+    function setCartNavBtns(active){
+      var navButtons = parentContainer.querySelectorAll(".cart-nav__btn"),
+          len = navButtons.length;
+      for(var i = 0; i<len; i++ ) {
+        navButtons[i].classList.remove("cart-nav__btn_active");
+        navButtons[i].classList.remove("cart-nav__btn_done");
+      }
+      for(i=0; i<active; i++)navButtons[i].classList.add("cart-nav__btn_done") ;
+      navButtons[active].classList.add("cart-nav__btn_active") ;  
+    }
+
+    function moveCartPages(e){
+      var cartPages = parentContainer.querySelectorAll(".cart__content"),
+          len = cartPages.length,
+          linkedPage = parseInt (e.target.getAttribute("data-linked-page") );    
+      e.preventDefault();
+      if(e.target.parentNode.classList.contains("cart-nav__btn") 
+        && (!e.target.parentNode.classList.contains("cart-nav__btn_done")) ) return;
+      setCartNavBtns(linkedPage);
+      for(var i=0; i<len; i++){
+        for(var j=-3; j<=3; j++)
+          cartPages[i].classList.remove("cart__content_pos_"+j);
+        cartPages[i].classList.add("cart__content_pos_"+(i-linkedPage));
+      }
+    }    
+
+    function emptyBtn(e){
+      e.preventDefault();
+    }
+
+    function closeCart(e) {
+      e.preventDefault();
+      parentContainer.innerHTML = "";
+      if(e.target.classList.contains("cart-complete__close-btn")) {
+        myCart.clear();
+        refreshCartEntryBtn();
+      }  
+    }
+    
+    function deleteAppFromCart(e){
+      e.preventDefault();
+      var index = parseInt(e.target.getAttribute("data-index"))/*,
+         tBody = document.querySelector(".price-table").querySelector("tbody"),
+         tableRows = tBody.querySelectorAll(".price-table__row")*/;
+      myCart.remove(index);
+//      tBody.removeChild(tableRows[index+1]);
+      refreshCartEntryBtn();
+      initCartWindow();
+    }
+
+    if(!myCart.isEmpty()) {
+      for(var i = 0; i<len; i++) cartLinks[i].addEventListener("click",(function(){return moveCartPages})());
+      for(i = 0; i<myCart.count(); i++){
+        tableRowClone=createClone(".price-table-row-template");
+        btnDel = tableRowClone.querySelector(".btn-del");
+        tableRowClone.querySelector(".price-table__row-header").innerHTML = myCart.getData(i).name;
+        tableRowClone.querySelector(".price-table__data-price").innerHTML = myCart.getData(i).price;
+        tableRowClone.querySelector(".price-table__data-total").innerHTML = myCart.getData(i).price;
+        btnDel.setAttribute("data-index", i);
+        btnDel.addEventListener("click",(function(){return deleteAppFromCart})() );
+        tableClone.querySelector("tbody").appendChild(tableRowClone);
+      }
+      cartBaseContainer.insertBefore(tableClone, cartBaseContainer.firstChild);
+      priceTotal.innerHTML=Math.floor( myCart.calcPrice() );
+      priceCents.innerHTML=getDecimal( myCart.calcPrice(), 2);
+    } else {
+      btnNext.classList.add('cart-btn_disabled');
+      btnNext.addEventListener("click",emptyBtn);
+      showErrorMessage(cartBaseContainer, "Вы не добавили ни одного приложения", true);
+    }
+
+    btnClose.addEventListener("click",(function(){ return closeCart})() );
+    btnCompleteClose.addEventListener("click",(function(){ return closeCart})() );
+
+    parentContainer.innerHTML="";
+    parentContainer.appendChild(clone);    
+  }
+
   function appShopStart(){
+    document.querySelector(".main-nav__cart-btn").addEventListener("click", function(e){
+      e.preventDefault();
+      initCartWindow();
+    });
     initMainNav();
     showMainPage();
   }
-
+  
   appShopStart();
 
 })();
