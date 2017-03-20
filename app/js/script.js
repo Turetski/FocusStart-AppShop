@@ -22,8 +22,18 @@
   };
   var Cart=sugarOop.cls(null, function(){
         this.__init__ = function() {
+          var dataArr, len,
+              dataStr=localStorage.getItem("fs-appShop-cart");    
           this._data = [];
+          dataArr=JSON.parse(dataStr);
+          if (Array.isArray(dataArr)) {
+            len = dataArr.length;
+            for(var i = 0; i<len; i++){
+              dataArr[i]
+            }
+          }
         };
+        
         this.put = function(appData){
           var len = this._data.length,
               i=0;
@@ -38,7 +48,7 @@
         this.calcPrice = function(){
           var total = 0,
               len = this.count();
-          for(var i =0; i<len;i++ ) total+= parseFloat(this._data[i].price);
+          for(var i =0; i<len;i++ ) total+= parseFloat(this._data[i].price, 10);
           return total;  
         }
         this.isEmpty = function(){
@@ -46,8 +56,10 @@
           else return false;
         }
         this.getData = function(num){ return this._data[num]}
-        this.remove = function(index){
-          this._data.splice(index,1);
+        this.remove = function(id){
+          var i =0, len=this.count();
+          while(i<len && this._data[i].id!=id) i++;
+          if (i<len) this._data.splice(i,1);
         }
         this.clear = function(){this._data = []}
       }),
@@ -57,8 +69,19 @@
           this.price = price;
           this.id = id;
         }
+        this.toString = function() {
+          var obj ={};
+          obj.id = this.id;
+          obj.name = this.name;
+          obj.price = this.price;
+          return JSON.stringify(obj);
+        }
       }),
-      myCart = new Cart;
+      myCart = new Cart();
+
+  function putCartDataInLS(cart) {
+    
+  }
 
   function refreshCartEntryBtn(){
     var i,
@@ -78,7 +101,7 @@
   function addAppInCart(e){
     e.preventDefault();
     var name = document.querySelector(".app-info .page-title").innerHTML,
-        price = parseFloat(document.querySelector(".app-presentation__price").innerHTML),
+        price = parseFloat(document.querySelector(".app-presentation__price").innerHTML, 10),
         id = document.querySelector(".inner-content__right-column").getAttribute("data-app-id"),
         data = new CartGood(id, name, price);
     if( myCart.put(data)) refreshCartEntryBtn();  
@@ -178,7 +201,7 @@
         sliderPoint.setAttribute("data-num", i+1);
         sliderPoint.addEventListener("click", function(e){
           e.preventDefault();
-          selectedPack = parseInt( e.target.getAttribute("data-num") );
+          selectedPack = parseInt(e.target.getAttribute("data-num"),10);
           changePackageVisions(); 
         })
         slider.appendChild(sliderPoint);
@@ -500,7 +523,7 @@
     function moveCartPages(e){
       var cartPages = parentContainer.querySelectorAll(".cart__content"),
           len = cartPages.length,
-          linkedPage = parseInt (e.target.getAttribute("data-linked-page") );    
+          linkedPage = parseInt (e.target.getAttribute("data-linked-page"),10);    
       e.preventDefault();
       if(e.target.parentNode.classList.contains("cart-nav__btn") 
         && (!e.target.parentNode.classList.contains("cart-nav__btn_done")) ) return;
@@ -527,7 +550,7 @@
     
     function deleteAppFromCart(e){
       e.preventDefault();
-      var index = parseInt(e.target.getAttribute("data-index"))/*,
+      var index = parseInt(e.target.getAttribute("data-appId"),10)/*,
          tBody = document.querySelector(".price-table").querySelector("tbody"),
          tableRows = tBody.querySelectorAll(".price-table__row")*/;
       myCart.remove(index);
@@ -544,7 +567,7 @@
         tableRowClone.querySelector(".price-table__row-header").innerHTML = myCart.getData(i).name;
         tableRowClone.querySelector(".price-table__data-price").innerHTML = myCart.getData(i).price;
         tableRowClone.querySelector(".price-table__data-total").innerHTML = myCart.getData(i).price;
-        btnDel.setAttribute("data-index", i);
+        btnDel.setAttribute("data-appId", myCart.getData(i).id );
         btnDel.addEventListener("click",(function(){return deleteAppFromCart})() );
         tableClone.querySelector("tbody").appendChild(tableRowClone);
       }
