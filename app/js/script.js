@@ -54,13 +54,7 @@
           while(i<len && appData.id != this._data[i].id)i++;
           if(i>=len) {
             this._data.push(this.generateCorrectDataObj(appData));
-            try{
-              localStorage.setItem("fs-appShop-cart", JSON.stringify(this._data));
-            } catch(e){
-              if (e == QUOTA_EXCEEDED_ERR) {
-                alert('Превышен лимит локального хранилища, необходимо очистить cookies');
-              }
-            }
+            this.refreshLocalStorage();
             return true;
           } 
           return false;
@@ -81,16 +75,25 @@
         }
 
         this.getData = function(num){ return this._data[num]}
-
+        this.refreshLocalStorage = function(){
+          try {
+              localStorage.setItem("fs-appShop-cart", JSON.stringify(this._data));
+            } catch(e){
+              //обработать ошибку
+            }  
+        }
         this.remove = function(id){
           var i =0, len=this.count();
           while(i<len && this._data[i].id!=id) i++;
           if (i<len) {
             this._data.splice(i,1);
-            localStorage.setItem("fs-appShop-cart", JSON.stringify(this._data));
+            this.refreshLocalStorage();
           }  
         }
-        this.clear = function(){this._data = []}
+        this.clear = function(){
+          this._data = [];
+          this.refreshLocalStorage();
+        }
       }),
 
       CartGood =  function(id, name, price){
@@ -101,6 +104,10 @@
 
   function isNumeric(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
+  }
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
   function escapeHTML(unsafe) {
@@ -545,9 +552,13 @@
         btnNext = clone.querySelector(".cart-link_on_payment"),
         btnClose = clone.querySelector(".btn-close-cart"),
         btnCompleteClose = clone.querySelector(".cart-complete__close-btn"),
-        priceTotal =clone.querySelector(".price-plate__total"),
-        priceCents =clone.querySelector(".price-plate__cents"),
-        cartLinks = clone.querySelectorAll(".cart-link"), len=cartLinks.length,
+        btnOnPayment = clone.querySelector(".cart-link_on_payment"),
+        btnOnContacts = clone.querySelector(".cart-link_on_contacts"),
+        btnOnBase = clone.querySelector(".cart-link_on_base"),
+        btnOnComplete = clone.querySelector(".cart-link_on_complete"),
+        priceTotal = clone.querySelector(".price-plate__total"),
+        priceCents = clone.querySelector(".price-plate__cents"),
+        cartLinks = clone.querySelectorAll(".cart-nav__btn-face"), len=cartLinks.length,
         myCart = new Cart();
 
     function setCartNavBtns(active){
@@ -561,20 +572,32 @@
       navButtons[active].classList.add("cart-nav__btn_active") ;  
     }
 
-    function moveCartPages(e){
-      var cartPages = parentContainer.querySelectorAll(".cart__content"),
-          len = cartPages.length,
-          linkedPage = parseInt (e.target.getAttribute("data-linked-page"),10);    
-      e.preventDefault();
-      if(e.target.parentNode.classList.contains("cart-nav__btn") 
-        && (!e.target.parentNode.classList.contains("cart-nav__btn_done")) ) return;
+    function showCartPage(linkedPage){
+      var cartPage = parentContainer.querySelectorAll(".cart__content")[linkedPage]; 
+      document.querySelector(".cart").setAttribute("data-active-page", linkedPage);   
       setCartNavBtns(linkedPage);
-      for(var i=0; i<len; i++){
-        for(var j=-3; j<=3; j++)
-          cartPages[i].classList.remove("cart__content_pos_"+j);
-        cartPages[i].classList.add("cart__content_pos_"+(i-linkedPage));
-      }
+      cartPage.classList.remove("cart__content_hidden");
+      cartPage.classList.remove("cart__content_blocked");
+      cartPage.classList.add("cart__content_show");
+      if(linkedPage == 2) insertUserInfo();
     }    
+    
+    function hideCartPage(linkedPage){
+      var cartPage = parentContainer.querySelectorAll(".cart__content")[linkedPage];    
+      cartPage.classList.add("cart__content_hidden");
+      cartPage.classList.remove("cart__content_show");
+      cartPage.classList.remove("cart__content_blocked");
+    }
+    
+    function changeCartPage(oldPage, newPage){
+      hideCartPage(oldPage);
+      showCartPage(newPage);
+    }
+
+    function blockCartPage(linkedPage){
+      var cartPage = parentContainer.querySelectorAll(".cart__content")[linkedPage];    
+      cartPage.classList.add("cart__content_blocked");
+    }
 
     function emptyBtn(e){
       e.preventDefault();
@@ -584,10 +607,39 @@
       e.preventDefault();
       parentContainer.innerHTML = "";
       if(e.target.classList.contains("cart-complete__close-btn")) {
+        myCart.clear();
         refreshCartEntryBtn();
       }  
     }
     
+    function saveUserInfo(){
+      var form = document.querySelector(".contacts-form"),
+          userName = form.querySelector(".contacts-form__input[name='user-name']"),
+          userLastName = form.querySelector(".contacts-form__input[name='user-last-name']"),
+          userTel = form.querySelector(".contacts-form__input[name='user-tel']"),
+          userEmail = form.querySelector(".contacts-form__input[name='user-mail']");
+      try {
+        localStorage.setItem("fs-appShop-user-name", userName.value);
+        localStorage.setItem("fs-appShop-user-last-name", userLastName.value);
+        localStorage.setItem("fs-appShop-user-tel", userTel.value);
+        localStorage.setItem("fs-appShop-user-mail", userEmail.value);
+      } catch(e){
+        //обработать исключение
+      }  
+    }
+    
+    function insertUserInfo(){
+      var form = document.querySelector(".contacts-form"),
+          userName = form.querySelector(".contacts-form__input[name='user-name']"),
+          userLastName = form.querySelector(".contacts-form__input[name='user-last-name']"),
+          userTel = form.querySelector(".contacts-form__input[name='user-tel']"),
+          userEmail = form.querySelector(".contacts-form__input[name='user-mail']");
+      userName.value = localStorage.getItem("fs-appShop-user-name");
+      userLastName.value = localStorage.getItem("fs-appShop-user-last-name");
+      userTel.value = localStorage.getItem("fs-appShop-user-tel");
+      userEmail.value = localStorage.getItem("fs-appShop-user-mail");     
+    }
+
     function deleteAppFromCart(e){
       e.preventDefault();
       var appId = parseInt(e.target.getAttribute("data-appId"),10)/*,
@@ -601,8 +653,7 @@
 
     if(!myCart.isEmpty()) {
       var cartData;
-      for(var i = 0; i<len; i++) cartLinks[i].addEventListener("click",(function(){return moveCartPages})());
-      for(i = 0; i<myCart.count(); i++){
+      for(var i = 0; i<myCart.count(); i++){
         tableRowClone=createClone(".price-table-row-template");
         btnDel = tableRowClone.querySelector(".btn-del");
         cartData = myCart.getData(i);
@@ -624,9 +675,43 @@
 
     btnClose.addEventListener("click",(function(){ return closeCart})() );
     btnCompleteClose.addEventListener("click",(function(){ return closeCart})() );
+    
+    btnOnBase.addEventListener("click",(function(){ return function(e){
+      e.preventDefault();
+      changeCartPage(1,0);
+    }})() );
 
+    btnOnPayment.addEventListener("click",(function(){ return function(e){
+      e.preventDefault();
+      changeCartPage(0,1);
+    }})() );
+    
+    btnOnContacts.addEventListener("click",(function(){ return function(e){
+      e.preventDefault();
+      blockCartPage(1);
+      setTimeout(changeCartPage, getRandomInt(2,7)*1000, 1, 2);
+    }})() );
+    
+    btnOnComplete.addEventListener("click",(function(){ return function(e){
+      e.preventDefault();
+      blockCartPage(2);
+      saveUserInfo();
+      setTimeout(changeCartPage, getRandomInt(1,5)*1000, 2, 3);
+    }})() );
+
+    for(i = 0; i<len; i++){ 
+      cartLinks[i].addEventListener("click",function(x){
+        return function(e){
+          var oldPage = parseInt(document.querySelector(".cart").getAttribute("data-active-page"),10);
+          e.preventDefault();
+          changeCartPage(oldPage, x); 
+        }
+      }(i) );  
+      console.log(parseInt(cartLinks[i].getAttribute("data-linked-page"),10));
+    }
     parentContainer.innerHTML="";
-    parentContainer.appendChild(clone);    
+    parentContainer.appendChild(clone); 
+
   }
 
   function appShopStart(){

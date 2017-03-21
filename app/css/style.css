@@ -21,6 +21,58 @@ html {
   100%  {transform: translateY(0);}
 }
 
+@keyframes move-left {
+  0%    {transform: translateX(0);}
+  25%   {transform: translateX(-20rem);}
+  50%   {transform: translateX(-40rem);}
+  75%   {transform: translateX(-60rem);}
+  100%  {transform: translateX(-90rem);}
+}
+
+@keyframes move-right {
+  0%    {transform: translateX(0);}
+  25%   {transform: translateX(20rem);}
+  50%   {transform: translateX(40rem);}
+  75%   {transform: translateX(60rem);}
+  100%  {transform: translateX(90rem);}
+}
+
+@keyframes rotating {
+  0%    {transform: rotate(0);}
+  
+  100%  {transform: rotate(360deg);}
+}
+
+.load-animated{
+  position: absolute;
+  display: block;
+  top:50%;
+  left:50%;
+  width: 2rem;
+  height: 2rem;
+  margin-top: -1rem;
+  margin-left: -1rem;
+  animation-name: rotating;
+  animation-duration: 1.2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+.cart__overlay{
+  position: fixed;
+  display: none;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.cart__content_blocked .cart__overlay{
+  display: block;
+}
+
 .clearfix:after {
   content:"";
   display: block;
@@ -91,59 +143,38 @@ html {
 }
 
 .cart__content {
-  position: absolute;
+  position: relative;
   width: 100%;
-  transition-property: margin-left;
-  transition: 0.7s;
 }
 
 .cart-base {
   padding: 0 5rem;
   text-transform: uppercase;
-  margin-left: 0;
+  
 }
 
 .cart-payment{
   padding: 0 15rem;
-  margin-left: 80rem;
+  display: none;
 }
 
 .cart-contacts {
   padding: 0 9.875rem;
   text-align: left;
-  margin-left: 160rem;
+  display: none;
 }
 
 .cart-complete {
-  margin-left: 240rem;
+  display: none;
 }
 
-.cart__content_pos_0 {
-  margin-left: 0;
+
+.cart__content_hidden {
+  display: none;
 }
 
-.cart__content_pos_1 {
-  margin-left: 80rem;
-}
-
-.cart__content_pos_2 {
-  margin-left: 160rem;
-}
-
-.cart__content_pos_3 {
-  margin-left: 240rem;
-}
-
-.cart__content_pos_-1 {
-  margin-left: -80rem;
-}
-
-.cart__content_pos_-2 {
-  margin-left: -160rem;
-}
-
-.cart__content_pos_-3 {
-  margin-left: -240rem;
+.cart__content_show {
+  display: block;
 }
 
 .cart-nav {
