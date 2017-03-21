@@ -83,7 +83,7 @@ html {
   display: block;
   font-family: sans-serif;
   width: 80rem;
-  height: 50rem;
+  min-height: 50rem;
   margin: 0 auto;
   text-align: center;
   background-color: #fff;

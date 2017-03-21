@@ -23,69 +23,108 @@
   var Cart=sugarOop.cls(null, function(){
         this.__init__ = function() {
           var dataArr, len,
+              cartGood,
               dataStr=localStorage.getItem("fs-appShop-cart");    
           this._data = [];
           dataArr=JSON.parse(dataStr);
           if (Array.isArray(dataArr)) {
             len = dataArr.length;
-            for(var i = 0; i<len; i++){
-              dataArr[i]
+            for(var i = 0; i<len; i++) if (this.isCorrectData(dataArr[i])){
+              cartGood = this.generateCorrectDataObj(dataArr[i]);
+              this.put(cartGood);
             }
           }
-        };
-        
+        }
+
+        this.isCorrectData =function(data){
+          return data.hasOwnProperty("id") && 
+                   data.hasOwnProperty("name") &&
+                     data.hasOwnProperty("price") &&
+                       isNumeric(data.price) && isNumeric(data.id);
+        }
+
+        this.generateCorrectDataObj = function(data){
+          return new CartGood(data.id, escapeHTML(data.name), data.price);
+        }
+
         this.put = function(appData){
           var len = this._data.length,
               i=0;
+          if (!this.isCorrectData(appData)) return false;
           while(i<len && appData.id != this._data[i].id)i++;
           if(i>=len) {
-            this._data.push(appData);
+            this._data.push(this.generateCorrectDataObj(appData));
+            try{
+              localStorage.setItem("fs-appShop-cart", JSON.stringify(this._data));
+            } catch(e){
+              if (e == QUOTA_EXCEEDED_ERR) {
+                alert('Превышен лимит локального хранилища, необходимо очистить cookies');
+              }
+            }
             return true;
           } 
           return false;
         }
+
         this.count = function(){return this._data.length}
+
         this.calcPrice = function(){
           var total = 0,
               len = this.count();
           for(var i =0; i<len;i++ ) total+= parseFloat(this._data[i].price, 10);
           return total;  
         }
+
         this.isEmpty = function(){
           if(this.count()===0) return true;
           else return false;
         }
+
         this.getData = function(num){ return this._data[num]}
+
         this.remove = function(id){
           var i =0, len=this.count();
           while(i<len && this._data[i].id!=id) i++;
-          if (i<len) this._data.splice(i,1);
+          if (i<len) {
+            this._data.splice(i,1);
+            localStorage.setItem("fs-appShop-cart", JSON.stringify(this._data));
+          }  
         }
         this.clear = function(){this._data = []}
       }),
-      CartGood = sugarOop.cls(null, function(){
-        this.__init__ = function(id, name, price) {
-          this.name = name;
-          this.price = price;
-          this.id = id;
-        }
-        this.toString = function() {
-          var obj ={};
-          obj.id = this.id;
-          obj.name = this.name;
-          obj.price = this.price;
-          return JSON.stringify(obj);
-        }
-      }),
-      myCart = new Cart();
 
-  function putCartDataInLS(cart) {
-    
+      CartGood =  function(id, name, price){
+        this.name = name;
+        this.price = price;
+        this.id = id;
+      };
+
+  function isNumeric(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
   }
+
+  function escapeHTML(unsafe) {
+    unsafe ="".concat(unsafe);
+    return unsafe.replace(/[&<>"']/g, function(m) {
+      switch (m) {
+        case '&':
+          return '&amp;';
+        case '<':
+          return '&lt;';
+        case '>':
+          return '&gt;';  
+        case '"':
+          return '&quot;';
+        default:
+          return '&#039;';
+      }
+    });
+  };
 
   function refreshCartEntryBtn(){
     var i,
-        icons = document.querySelectorAll(".cart-entry-btn__info-icon"), len = icons.length;
+        icons = document.querySelectorAll(".cart-entry-btn__info-icon"), len = icons.length,
+        myCart = new Cart();
     document.querySelector(".cart-entry-btn__count").innerHTML= myCart.count();
     document.querySelector(".cart-entry-btn__sum").innerHTML= floatRound(myCart.calcPrice(),2);
     if(myCart.isEmpty()){
@@ -103,7 +142,8 @@
     var name = document.querySelector(".app-info .page-title").innerHTML,
         price = parseFloat(document.querySelector(".app-presentation__price").innerHTML, 10),
         id = document.querySelector(".inner-content__right-column").getAttribute("data-app-id"),
-        data = new CartGood(id, name, price);
+        data = new CartGood(id, name, price),
+        myCart = new Cart();
     if( myCart.put(data)) refreshCartEntryBtn();  
   }
 
@@ -167,7 +207,7 @@
 
   function showErrorMessage(container, message, saveInnerHTML){
     var clone = createClone(".error-message-template");
-    clone.querySelector(".error-message").innerHTML = message;
+    clone.querySelector(".error-message").innerHTML = escapeHTML(message);
     if(!saveInnerHTML)container.innerHTML="";
     container.insertBefore(clone,container.firstChild);
   }
@@ -307,7 +347,7 @@
       });
 
       packName.classList.add("app-packages__name");
-      packName.innerHTML=package.name;
+      packName.innerHTML=escapeHTML(package.name);
 
       packDate.classList.add("pub-date");
       packDate.innerHTML=parseDate(package.date);
@@ -346,16 +386,16 @@
           featuresList = clone.querySelector(".custom-ul1"), 
           buyBtn = clone.querySelector(".app-presentation_buy-btn"),
           featureItem;
-      clone.querySelector(".page-title").innerHTML = appData.title; 
+      clone.querySelector(".page-title").innerHTML = escapeHTML(appData.title); 
       clone.querySelector(".app-presentation .pub-date").innerHTML = parseDate(new Date (appData.lastUpdate*1000) );
-      clone.querySelector(".app-presentation__description").innerHTML = appData.description.replace(/[\n\r]/g, '<br>');
-      clone.querySelector(".app-presentation__requirements").innerHTML = appData.requirements.replace(/[\n\r]/g, '<br>');
-      clone.querySelector(".app-presentation__price").innerHTML = appData.price;
+      clone.querySelector(".app-presentation__description").innerHTML = escapeHTML(appData.description).replace(/[\n\r]/g, '<br>');
+      clone.querySelector(".app-presentation__requirements").innerHTML = escapeHTML(appData.requirements).replace(/[\n\r]/g, '<br>');
+      clone.querySelector(".app-presentation__price").innerHTML = escapeHTML(appData.price);
       clone.querySelector(".app-presentation__face").style.backgroundImage= "".concat("url(", getFaceByGuid(appData.guid),")");
       featuresList.innerHTML = "";
       for(var i = 0; i<featuresCount; i++) {
         featureItem = document.createElement('li');
-        featureItem.innerHTML=appData.features[i].replace(/[\n\r]/g, '<br>');
+        featureItem.innerHTML= escapeHTML(appData.features[i]).replace(/[\n\r]/g, '<br>');
         featureItem.classList.add("custom-ul1__item");
         featuresList.appendChild(featureItem);
       }
@@ -415,7 +455,7 @@
       link.setAttribute("title", catalogItemData.name);
       link.setAttribute("data-app-id", catalogItemData.id);
       if(catalogItemData.id== appId) link.classList.add("app-catalog__link_active");
-      link.innerHTML = catalogItemData.name;
+      link.innerHTML = escapeHTML(catalogItemData.name);
       link.addEventListener("click", appCatalogLinkClick)
       parent.appendChild(clone);
     }
@@ -507,7 +547,8 @@
         btnCompleteClose = clone.querySelector(".cart-complete__close-btn"),
         priceTotal =clone.querySelector(".price-plate__total"),
         priceCents =clone.querySelector(".price-plate__cents"),
-        cartLinks = clone.querySelectorAll(".cart-link"), len=cartLinks.length;
+        cartLinks = clone.querySelectorAll(".cart-link"), len=cartLinks.length,
+        myCart = new Cart();
 
     function setCartNavBtns(active){
       var navButtons = parentContainer.querySelectorAll(".cart-nav__btn"),
@@ -543,31 +584,32 @@
       e.preventDefault();
       parentContainer.innerHTML = "";
       if(e.target.classList.contains("cart-complete__close-btn")) {
-        myCart.clear();
         refreshCartEntryBtn();
       }  
     }
     
     function deleteAppFromCart(e){
       e.preventDefault();
-      var index = parseInt(e.target.getAttribute("data-appId"),10)/*,
+      var appId = parseInt(e.target.getAttribute("data-appId"),10)/*,
          tBody = document.querySelector(".price-table").querySelector("tbody"),
          tableRows = tBody.querySelectorAll(".price-table__row")*/;
-      myCart.remove(index);
+      myCart.remove(appId);
 //      tBody.removeChild(tableRows[index+1]);
       refreshCartEntryBtn();
       initCartWindow();
     }
 
     if(!myCart.isEmpty()) {
+      var cartData;
       for(var i = 0; i<len; i++) cartLinks[i].addEventListener("click",(function(){return moveCartPages})());
       for(i = 0; i<myCart.count(); i++){
         tableRowClone=createClone(".price-table-row-template");
         btnDel = tableRowClone.querySelector(".btn-del");
-        tableRowClone.querySelector(".price-table__row-header").innerHTML = myCart.getData(i).name;
-        tableRowClone.querySelector(".price-table__data-price").innerHTML = myCart.getData(i).price;
-        tableRowClone.querySelector(".price-table__data-total").innerHTML = myCart.getData(i).price;
-        btnDel.setAttribute("data-appId", myCart.getData(i).id );
+        cartData = myCart.getData(i);
+        tableRowClone.querySelector(".price-table__row-header").innerHTML = cartData.name;
+        tableRowClone.querySelector(".price-table__data-price").innerHTML = cartData.price;
+        tableRowClone.querySelector(".price-table__data-total").innerHTML = cartData.price;
+        btnDel.setAttribute("data-appId", cartData.id );
         btnDel.addEventListener("click",(function(){return deleteAppFromCart})() );
         tableClone.querySelector("tbody").appendChild(tableRowClone);
       }
@@ -594,8 +636,8 @@
     });
     initMainNav();
     showMainPage();
+    refreshCartEntryBtn();
   }
   
   appShopStart();
-
 })();
