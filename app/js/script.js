@@ -1,240 +1,4 @@
 (function(){
-  var sugarOop = {
-    inherit: function(cls, superClass) {
-      cls.prototype = Object.create(superClass.prototype);
-      cls.prototype.constructor = cls;
-     cls.SuperClass = superClass;
-    },
-
-    cls: function (parent, fn) {
-      var c = function() { this.__init__ && this.__init__.apply(this, arguments); },
-      key;
-      parent && this.inherit(c, parent);
-      fn.call(c.prototype);
-      return c;
-    },
-
-    super: function(cls) {
-      if (cls.SuperClass) return cls.SuperClass.prototype;
-      if (cls.mixin) return cls;
-      return cls.prototype;
-    }
-  };
-
-  var Cart=sugarOop.cls(null, function(){
-        this.__init__ = function() {
-          var dataArr, len,
-              cartGood,
-              dataStr=localStorage.getItem("fs-appShop-cart");    
-          this._data = [];
-          dataArr=JSON.parse(dataStr);
-          if (Array.isArray(dataArr)) {
-            len = dataArr.length;
-            for(var i = 0; i<len; i++) if (this.isCorrectData(dataArr[i])){
-              cartGood = this.generateCorrectDataObj(dataArr[i]);
-              this.put(cartGood);
-            }
-          }
-        }
-
-        this.isCorrectData =function(data){
-          return data.hasOwnProperty("id") && 
-                   data.hasOwnProperty("name") &&
-                     data.hasOwnProperty("price") &&
-                       isNumeric(data.price) && isNumeric(data.id);
-        }
-
-        this.generateCorrectDataObj = function(data){
-          return new CartGood(data.id, escapeHTML(data.name), data.price);
-        }
-
-        this.put = function(appData, needRefresh){
-          var len = this._data.length,
-              i=0;
-          if (!this.isCorrectData(appData)) return false;
-          while(i<len && appData.id != this._data[i].id)i++;
-          if(i>=len) {
-            this._data.push(this.generateCorrectDataObj(appData));
-            if(needRefresh)this.refreshLocalStorage();
-            return true;
-          } 
-          return false;
-        }
-
-        this.count = function(){return this._data.length}
-
-        this.calcPrice = function(){
-          var total = 0,
-              len = this.count();
-          for(var i =0; i<len;i++ ) total+= parseFloat(this._data[i].price, 10);
-          return total;  
-        }
-
-        this.isEmpty = function(){
-          if(this.count()===0) return true;
-          else return false;
-        }
-
-        this.getData = function(num){ return this._data[num]}
-        this.refreshLocalStorage = function(){
-          try {
-              localStorage.setItem("fs-appShop-cart", JSON.stringify(this._data));
-            } catch(e){
-              //обработать ошибку
-            }  
-        }
-        this.remove = function(id){
-          var i =0, len=this.count();
-          while(i<len && this._data[i].id!=id) i++;
-          if (i<len) {
-            this._data.splice(i,1);
-            this.refreshLocalStorage();
-          }  
-        }
-        this.clear = function(){
-          this._data = [];
-          this.refreshLocalStorage();
-        }
-      }),
-
-      CartGood =  function(id, name, price){
-        this.name = name;
-        this.price = price;
-        this.id = id;
-      };
-
-  function isNumeric(n) {
-    return !isNaN(parseFloat(n)) && isFinite(n);
-  }
-
-  function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-
-  function escapeHTML(unsafe) {
-    unsafe ="".concat(unsafe);
-    return unsafe.replace(/[&<>"']/g, function(m) {
-      switch (m) {
-        case '&':
-          return '&amp;';
-        case '<':
-          return '&lt;';
-        case '>':
-          return '&gt;';  
-        case '"':
-          return '&quot;';
-        default:
-          return '&#039;';
-      }
-    });
-  };
-  
-  function loadData(url){
-    return new Promise (function(resolve, reject){
-      xhr = new XMLHttpRequest();
-
-      xhr.open("GET", url, true);    
-      xhr.onload = function(e){
-        if(xhr.status !== 200) return reject("status"+ xhr.status);
-        if (!xhr.responseText) return reject("data is empty");
-          resolve( JSON.parse(xhr.responseText));
-      }
-      xhr.onerror = function(e){return reject("LoadError")}
-      xhr.send();
-    })
-  }
-
-  function refreshCartEntryBtn(){
-    var i,
-        icons = document.querySelectorAll(".cart-entry-btn__info-icon"), len = icons.length,
-        myCart = new Cart();
-    document.querySelector(".cart-entry-btn__count").innerHTML= myCart.count();
-    document.querySelector(".cart-entry-btn__sum").innerHTML= floatRound(myCart.calcPrice(),2);
-    if(myCart.isEmpty()){
-      document.querySelector(".cart-entry-btn__icon").classList.remove("cart-entry-btn__icon_green");
-      for(i=0; i< len; i++) icons[i].classList.remove("cart-entry-btn__info-icon_green");
-    } else {
-    for(i=0; i< len; i++) 
-      document.querySelector(".cart-entry-btn__icon").classList.add("cart-entry-btn__icon_green");
-      for(i=0; i< len; i++) icons[i].classList.add("cart-entry-btn__info-icon_green");
-    }
-  }
-
-  function addAppInCart(e){
-    e.preventDefault();
-    var name = document.querySelector(".app-info .page-title").innerHTML,
-        price = parseFloat(document.querySelector(".app-presentation__price").innerHTML, 10),
-        id = document.querySelector(".inner-content__right-column").getAttribute("data-app-id"),
-        data = new CartGood(id, name, price),
-        myCart = new Cart();
-    if( myCart.put(data, true)) refreshCartEntryBtn();  
-  }
-
-  function getDecimal(num, count){
-    var result;
-    if (count<1) return 0;
-    num = Math.abs(num);
-    result = num-Math.floor(num);
-    for(var i=0;  i<count; i++) result*=10;
-    return Math.floor(result);
-  }
-  
-  function floatRound(num, count){
-    var c = Math.pow(10,count);
-    return Math.floor(num*c)/c;
-  }
-
-  function parseMonth(m){
-    switch (m) {
-      case 0: return "января";
-      case 1: return "февраля";
-      case 2: return "марта";
-      case 3: return "апреля";
-      case 4: return "мая";
-      case 5: return "июня";
-      case 6: return "июля";
-      case 7: return "августа";
-      case 8: return "сентября";
-      case 9: return "октября";
-      case 10: return "ноября";
-      case 11: return "декабря";
-      default: return "неверные данные";
-    }
-  }
-
-  function parseDate(myDate){
-      return "".concat(myDate.getDate(), " ", parseMonth(myDate.getMonth()), " ", myDate.getFullYear() );
-  }
-  
-  function createClone(tempSelector) {
-    var template = document.querySelector(tempSelector);
-    return document.importNode(template.content, true);
-  }
-
-  function getFaceByGuid(guid){
-    var guidData = {
-          "93d91e8f-8321-4fe4-9177-b4baedc8e1bc": "new-bank.png",
-          "0a3dd94d-ba19-4f79-b8e4-7c480c581f60": "standart-package.png",
-          "6d28cb24-db73-49b1-b736-f93c6aba66cd": "catalog.png",
-          "8213058c-ffba-4568-920a-2c6d581006b9": "cat.jpg",
-          "a01996f2-f591-433d-ade8-eaae86c5c9fc": "cat.jpg",
-          "0a3dd94d-ba19-4f79-b8e4-7c467adsf960": "cat.jpg",
-          "5df818b6-1942-4959-b099-c042495ef805": "cat.jpg",
-          "9116354f-48ae-4fd0-8656-39dfb0aa7272": "cat.jpg",
-          "dddee02e-f620-48d5-b0da-e9cace1c103c": "cat.jpg",
-          "d226f5eb-373d-47d0-9e7a-ff6782b829fc": "cat.jpg"
-        };
-    if (guidData[guid]) return ("img/" + guidData[guid]);
-    else return "img/cat.jpg";
-  }
-
-  function showErrorMessage(container, message, saveInnerHTML){
-    var clone = createClone(".error-message-template");
-    clone.querySelector(".error-message").innerHTML = escapeHTML(message);
-    if(!saveInnerHTML)container.innerHTML="";
-    container.insertBefore(clone,container.firstChild);
-  }
-  
   function loadAppPackages(){
     var PACK_VISIBLE=3, PACK_COUNT =7, 
         selectedPack;
@@ -246,7 +10,7 @@
         result.push(new Object);
         result[i].name = packs[i].title;
         result[i].date = new Date(packs[i].lastUpdate*1000);
-        result[i].face = getFaceByGuid(packs[i].guid);
+        result[i].face = $$.getFaceByGuid(packs[i].guid);
         result[i].guid = packs[i].guid;
         result[i].id = packs[i].id;
       }
@@ -358,7 +122,7 @@
       var packDate = document.createElement('div');
 
       packLink.classList.add("app-packages__face");
-      packLink.style.backgroundImage= "".concat("url(", getFaceByGuid(package.guid),")");
+      packLink.style.backgroundImage= "".concat("url(", $$.getFaceByGuid(package.guid),")");
       packLink.setAttribute("href", "#");
       packLink.setAttribute("data-app-id", package.id);
       packLink.addEventListener("click", function(e){
@@ -369,10 +133,10 @@
       });
 
       packName.classList.add("app-packages__name");
-      packName.innerHTML=escapeHTML(package.name);
+      packName.innerHTML=$$.escapeHTML(package.name);
 
       packDate.classList.add("pub-date");
-      packDate.innerHTML=parseDate(package.date);
+      packDate.innerHTML=$$.parseDate(package.date);
 
       packBody.classList.add("app-packages__item");
       packBody.appendChild(packLink);
@@ -381,7 +145,7 @@
       parent.appendChild(packBody);
     }
 
-    loadData("api/app_packages.json").then(
+    $$.loadData("api/app_packages.json").then(
       function(result){
         addPackages( parsePackages(result) , PACK_COUNT);
       },
@@ -401,40 +165,40 @@
     }
   
     function createAppInfoNode(container, appData){
-      var clone = createClone(".app-info-template"),
+      var clone = $$.createClone(".app-info-template"),
           featuresCount = appData.features.length,
           featuresList = clone.querySelector(".custom-ul1"), 
           buyBtn = clone.querySelector(".app-presentation_buy-btn"),
           featureItem;
-      clone.querySelector(".page-title").innerHTML = escapeHTML(appData.title); 
-      clone.querySelector(".app-presentation .pub-date").innerHTML = parseDate(new Date (appData.lastUpdate*1000) );
-      clone.querySelector(".app-presentation__description").innerHTML = escapeHTML(appData.description).replace(/[\n\r]/g, '<br>');
-      clone.querySelector(".app-presentation__requirements").innerHTML = escapeHTML(appData.requirements).replace(/[\n\r]/g, '<br>');
-      clone.querySelector(".app-presentation__price").innerHTML = escapeHTML(appData.price);
-      clone.querySelector(".app-presentation__face").style.backgroundImage= "".concat("url(", getFaceByGuid(appData.guid),")");
+      clone.querySelector(".page-title").innerHTML = $$.escapeHTML(appData.title); 
+      clone.querySelector(".app-presentation .pub-date").innerHTML = $$.parseDate(new Date (appData.lastUpdate*1000) );
+      clone.querySelector(".app-presentation__description").innerHTML = $$.escapeHTML(appData.description).replace(/[\n\r]/g, '<br>');
+      clone.querySelector(".app-presentation__requirements").innerHTML = $$.escapeHTML(appData.requirements).replace(/[\n\r]/g, '<br>');
+      clone.querySelector(".app-presentation__price").innerHTML = $$.escapeHTML(appData.price);
+      clone.querySelector(".app-presentation__face").style.backgroundImage= "".concat("url(", $$.getFaceByGuid(appData.guid),")");
       featuresList.innerHTML = "";
       for(var i = 0; i<featuresCount; i++) {
         featureItem = document.createElement('li');
-        featureItem.innerHTML= escapeHTML(appData.features[i]).replace(/[\n\r]/g, '<br>');
+        featureItem.innerHTML= $$.escapeHTML(appData.features[i]).replace(/[\n\r]/g, '<br>');
         featureItem.classList.add("custom-ul1__item");
         featuresList.appendChild(featureItem);
       }
-      buyBtn.addEventListener("click", addAppInCart);
+      buyBtn.addEventListener("click", appShopCart.addApp);
       container.innerHTML="";
       container.setAttribute("data-app-id", appData.id);
       container.appendChild(clone);
     }
     
     if(!appId){
-      showErrorMessage(container, "Данные приложения не загружены"); 
+      $$.showErrorMessage(container, "Данные приложения не загружены"); 
       return;
     }
-    loadData("api/app_info.json").then(
+    $$.loadData("api/app_info.json").then(
       function (result){ 
         appInfoData = getInfoDataById(appId, result );
         appInfoData ?
           createAppInfoNode(container, appInfoData):
-          showErrorMessage(container, "Данные приложения не загружены");},
+          $$.showErrorMessage(container, "Данные приложения не загружены");},
       function (error){console.log(error)/*сообщить об ошибке*/}
       );
   }
@@ -467,12 +231,12 @@
     }
 
     function createAppCatalogItemNode(catalogItemData, parent){
-      var clone = createClone(".app-catalog__item-template"),
+      var clone = $$.createClone(".app-catalog__item-template"),
           link =clone.querySelector(".app-catalog__link");  
       link.setAttribute("title", catalogItemData.name);
       link.setAttribute("data-app-id", catalogItemData.id);
       if(catalogItemData.id== appId) link.classList.add("app-catalog__link_active");
-      link.innerHTML = escapeHTML(catalogItemData.name);
+      link.innerHTML = $$.escapeHTML(catalogItemData.name);
       link.addEventListener("click", appCatalogLinkClick)
       parent.appendChild(clone);
     }
@@ -488,7 +252,7 @@
       return result;
     }
 
-    loadData("api/app_catalog_packages.json").then(
+    $$.loadData("api/app_catalog_packages.json").then(
       function(result){
         appCatalogItems = parseCatalogItems(result);
         if(!appId && appCatalogItems[0].id) appId=appCatalogItems[0].id;/*default id gets from first element of catalog list*/
@@ -552,191 +316,21 @@
     });    
   }
 
-  function initCartWindow(){
-    var parentContainer = document.querySelector(".modal-content"),
-        clone = createClone(".cart-window-template"),
-        cartBaseContainer = clone.querySelector(".cart-base"),
-        tableClone = createClone(".cart-table-template"),
-        tableRowCLone, btnDel,
-        btnNext = clone.querySelector(".cart-link_on_payment"),
-        btnClose = clone.querySelector(".btn-close-cart"),
-        btnCompleteClose = clone.querySelector(".cart-complete__close-btn"),
-        btnOnPayment = clone.querySelector(".cart-link_on_payment"),
-        btnOnContacts = clone.querySelector(".cart-link_on_contacts"),
-        btnOnBase = clone.querySelector(".cart-link_on_base"),
-        btnOnComplete = clone.querySelector(".cart-link_on_complete"),
-        priceTotal = clone.querySelector(".price-plate__total"),
-        priceCents = clone.querySelector(".price-plate__cents"),
-        cartLinks = clone.querySelectorAll(".cart-nav__btn-face"), len=cartLinks.length,
-        myCart = new Cart();
-
-    function setCartNavBtns(active){
-      var navButtons = parentContainer.querySelectorAll(".cart-nav__btn"),
-          len = navButtons.length;
-      for(var i = 0; i<len; i++ ) {
-        navButtons[i].classList.remove("cart-nav__btn_active");
-        navButtons[i].classList.remove("cart-nav__btn_done");
-      }
-      for(i=0; i<active; i++)navButtons[i].classList.add("cart-nav__btn_done") ;
-      navButtons[active].classList.add("cart-nav__btn_active") ;  
-    }
-
-    function showCartPage(linkedPage){
-      var cartPage = parentContainer.querySelectorAll(".cart__content")[linkedPage]; 
-      document.querySelector(".cart").setAttribute("data-active-page", linkedPage);   
-      setCartNavBtns(linkedPage);
-      cartPage.classList.remove("cart__content_hidden");
-      cartPage.classList.remove("cart__content_blocked");
-      cartPage.classList.add("cart__content_show");
-      if(linkedPage == 2) insertUserInfo();
-    }    
-    
-    function hideCartPage(linkedPage){
-      var cartPage = parentContainer.querySelectorAll(".cart__content")[linkedPage];    
-      cartPage.classList.add("cart__content_hidden");
-      cartPage.classList.remove("cart__content_show");
-      cartPage.classList.remove("cart__content_blocked");
-    }
-    
-    function changeCartPage(oldPage, newPage){
-      hideCartPage(oldPage);
-      showCartPage(newPage);
-    }
-
-    function blockCartPage(linkedPage){
-      var cartPage = parentContainer.querySelectorAll(".cart__content")[linkedPage];    
-      cartPage.classList.add("cart__content_blocked");
-    }
-
-    function emptyBtn(e){
-      e.preventDefault();
-    }
-
-    function closeCart(e) {
-      e.preventDefault();
-      parentContainer.innerHTML = "";
-      if(e.target.classList.contains("cart-complete__close-btn")) {
-        myCart.clear();
-        refreshCartEntryBtn();
-      }  
-    }
-    
-    function saveUserInfo(){
-      var form = document.querySelector(".contacts-form"),
-          userName = form.querySelector(".contacts-form__input[name='user-name']"),
-          userLastName = form.querySelector(".contacts-form__input[name='user-last-name']"),
-          userTel = form.querySelector(".contacts-form__input[name='user-tel']"),
-          userEmail = form.querySelector(".contacts-form__input[name='user-mail']");
-      try {
-        localStorage.setItem("fs-appShop-user-name", userName.value);
-        localStorage.setItem("fs-appShop-user-last-name", userLastName.value);
-        localStorage.setItem("fs-appShop-user-tel", userTel.value);
-        localStorage.setItem("fs-appShop-user-mail", userEmail.value);
-      } catch(e){
-        //обработать исключение
-      }  
-    }
-    
-    function insertUserInfo(){
-      var form = document.querySelector(".contacts-form"),
-          userName = form.querySelector(".contacts-form__input[name='user-name']"),
-          userLastName = form.querySelector(".contacts-form__input[name='user-last-name']"),
-          userTel = form.querySelector(".contacts-form__input[name='user-tel']"),
-          userEmail = form.querySelector(".contacts-form__input[name='user-mail']");
-      userName.value = localStorage.getItem("fs-appShop-user-name");
-      userLastName.value = localStorage.getItem("fs-appShop-user-last-name");
-      userTel.value = localStorage.getItem("fs-appShop-user-tel");
-      userEmail.value = localStorage.getItem("fs-appShop-user-mail");     
-    }
-
-    function deleteAppFromCart(e){
-      e.preventDefault();
-      var appId = parseInt(e.target.getAttribute("data-appId"),10)/*,
-         tBody = document.querySelector(".price-table").querySelector("tbody"),
-         tableRows = tBody.querySelectorAll(".price-table__row")*/;
-      myCart.remove(appId);
-//      tBody.removeChild(tableRows[index+1]);
-      refreshCartEntryBtn();
-      initCartWindow();
-    }
-
-    if(!myCart.isEmpty()) {
-      var cartData;
-      for(var i = 0; i<myCart.count(); i++){
-        tableRowClone=createClone(".price-table-row-template");
-        btnDel = tableRowClone.querySelector(".btn-del");
-        cartData = myCart.getData(i);
-        tableRowClone.querySelector(".price-table__row-header").innerHTML = cartData.name;
-        tableRowClone.querySelector(".price-table__data-price").innerHTML = cartData.price;
-        tableRowClone.querySelector(".price-table__data-total").innerHTML = cartData.price;
-        btnDel.setAttribute("data-appId", cartData.id );
-        btnDel.addEventListener("click",deleteAppFromCart );
-        tableClone.querySelector("tbody").appendChild(tableRowClone);
-      }
-      cartBaseContainer.insertBefore(tableClone, cartBaseContainer.firstChild);
-      priceTotal.innerHTML=Math.floor( myCart.calcPrice() );
-      priceCents.innerHTML=getDecimal( myCart.calcPrice(), 2);
-    } else {
-      btnNext.classList.add('cart-btn_disabled');
-      btnNext.addEventListener("click",emptyBtn);
-      showErrorMessage(cartBaseContainer, "Вы не добавили ни одного приложения", true);
-    }
-
-    btnClose.addEventListener("click",closeCart);
-    btnCompleteClose.addEventListener("click",closeCart );
-    
-    btnOnBase.addEventListener("click",function(e){
-      e.preventDefault();
-      changeCartPage(1,0);
-    });
-
-    btnOnPayment.addEventListener("click",function(e){
-      e.preventDefault();
-      changeCartPage(0,1);
-    });
-    
-    btnOnContacts.addEventListener("click",function(e){
-      e.preventDefault();
-      blockCartPage(1);
-      setTimeout(changeCartPage, getRandomInt(2,7)*1000, 1, 2);
-    });
-    
-    btnOnComplete.addEventListener("click",function(e){
-      e.preventDefault();
-      blockCartPage(2);
-      saveUserInfo();
-      setTimeout(changeCartPage, getRandomInt(1,5)*1000, 2, 3);
-    });
-
-    for(i = 0; i<len; i++){ 
-      cartLinks[i].addEventListener("click",function(x){
-        return function(e){
-          var oldPage = parseInt(document.querySelector(".cart").getAttribute("data-active-page"),10);
-          e.preventDefault();
-          changeCartPage(oldPage, x); 
-        }
-      }(i) );  
-    }
-    parentContainer.innerHTML="";
-    parentContainer.appendChild(clone); 
-
-  }
-
   function appShopStart(){
     document.querySelector(".main-nav__cart-btn").addEventListener("click", function(e){
       e.preventDefault();
-      initCartWindow();
+      appShopCart.init();
     });
     initMainNav();
     showMainPage();
-    refreshCartEntryBtn();
+    appShopCart.refreshEntryBtn();
     window.addEventListener("storage", function(e){
       var cart = document.querySelector(".cart");
       if(e.key.localeCompare('fs-appShop-cart')!==0) return;
-      refreshCartEntryBtn();
-      if(cart)initCartWindow();
+      appShopCart.refreshEntryBtn();
+      if(cart) appShopCart.init();
     },false);
   }
-  
+ // localStorage.clear();
   appShopStart();
 })();
