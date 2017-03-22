@@ -20,6 +20,7 @@
       return cls.prototype;
     }
   };
+
   var Cart=sugarOop.cls(null, function(){
         this.__init__ = function() {
           var dataArr, len,
@@ -380,13 +381,6 @@
       parent.appendChild(packBody);
     }
 
-    /*xhr.open("GET", "api/app_packages.json", true);    
-    xhr.onload = function(e){
-      if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200 && xhr.responseText) {
-        addPackages( parsePackages(JSON.parse(xhr.responseText)) , PACK_COUNT);
-      }else ;
-    }
-    xhr.send();*/
     loadData("api/app_packages.json").then(
       function(result){
         addPackages( parsePackages(result) , PACK_COUNT);
@@ -396,8 +390,7 @@
   }
 
   function loadAppInfo(appId){
-    var xhr = new XMLHttpRequest(),
-        appInfoData,
+    var appInfoData,
         container = document.querySelector(".inner-content__right-column"); 
 
     function getInfoDataById(id, data){
@@ -436,21 +429,18 @@
       showErrorMessage(container, "Данные приложения не загружены"); 
       return;
     }
-    xhr.open("GET", "api/app_info.json", true);    
-    xhr.onload = function(e){
-      if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200 && xhr.responseText) {
-        appInfoData = getInfoDataById(appId, JSON.parse(xhr.responseText) );
+    loadData("api/app_info.json").then(
+      function (result){ 
+        appInfoData = getInfoDataById(appId, result );
         appInfoData ?
           createAppInfoNode(container, appInfoData):
-          showErrorMessage(container, "Данные приложения не загружены");
-      }else {/*здесь обработчик ошибки*/};
-    }
-    xhr.send();
+          showErrorMessage(container, "Данные приложения не загружены");},
+      function (error){console.log(error)/*сообщить об ошибке*/}
+      );
   }
 
   function loadAppCatalogs(appId){
-    var xhr = new XMLHttpRequest(),
-        appCatalogItems;
+    var appCatalogItems;
 
     function  fillAppCatalog() {
       var l= appCatalogItems.length,
@@ -498,16 +488,15 @@
       return result;
     }
 
-    xhr.open("GET", "api/app_catalog_packages.json", true);    
-    xhr.onload = function(e){
-      if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200 && xhr.responseText) {
-        appCatalogItems = parseCatalogItems(JSON.parse(xhr.responseText));
+    loadData("api/app_catalog_packages.json").then(
+      function(result){
+        appCatalogItems = parseCatalogItems(result);
         if(!appId && appCatalogItems[0].id) appId=appCatalogItems[0].id;/*default id gets from first element of catalog list*/
         fillAppCatalog();
         loadAppInfo(appId);
-      }else {/*здесь обработчик ошибки*/};
-    }
-    xhr.send();
+      },
+      function(error){console.log(error)}
+    );
   }
 
   function showAppContent(template){
