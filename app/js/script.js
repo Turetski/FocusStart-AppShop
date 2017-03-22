@@ -127,6 +127,21 @@
       }
     });
   };
+  
+  function loadData(url){
+    return new Promise (function(resolve, reject){
+      xhr = new XMLHttpRequest();
+
+      xhr.open("GET", url, true);    
+      xhr.onload = function(e){
+        if(xhr.status !== 200) return reject("status"+ xhr.status);
+        if (!xhr.responseText) return reject("data is empty");
+          resolve( JSON.parse(xhr.responseText));
+      }
+      xhr.onerror = function(e){return reject("LoadError")}
+      xhr.send();
+    })
+  }
 
   function refreshCartEntryBtn(){
     var i,
@@ -221,8 +236,7 @@
   
   function loadAppPackages(){
     var PACK_VISIBLE=3, PACK_COUNT =7, 
-        selectedPack,
-        xhr = new XMLHttpRequest();
+        selectedPack;
 
     function parsePackages(packs){
       var len = packs.length,
@@ -366,13 +380,19 @@
       parent.appendChild(packBody);
     }
 
-    xhr.open("GET", "api/app_packages.json", true);    
+    /*xhr.open("GET", "api/app_packages.json", true);    
     xhr.onload = function(e){
       if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200 && xhr.responseText) {
         addPackages( parsePackages(JSON.parse(xhr.responseText)) , PACK_COUNT);
-      }else /*сообщить пользователю об ошибке.*/;
+      }else ;
     }
-    xhr.send();
+    xhr.send();*/
+    loadData("api/app_packages.json").then(
+      function(result){
+        addPackages( parsePackages(result) , PACK_COUNT);
+      },
+      function(error){console.log(error)/*сообщить об ошибке*/}
+    );
   }
 
   function loadAppInfo(appId){
