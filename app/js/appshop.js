@@ -1,4 +1,4 @@
-(function(){
+;var appShop = (function(){
   function loadAppPackages(){
     var PACK_VISIBLE=3, PACK_COUNT =7, 
         selectedPack;
@@ -149,7 +149,7 @@
       function(result){
         addPackages( parsePackages(result) , PACK_COUNT);
       },
-      function(error){console.log(error)/*сообщить об ошибке*/}
+      function(error){alert(error)/*сообщить об ошибке*/}
     );
   }
 
@@ -199,7 +199,7 @@
         appInfoData ?
           createAppInfoNode(container, appInfoData):
           $$.showErrorMessage(container, "Данные приложения не загружены");},
-      function (error){console.log(error)/*сообщить об ошибке*/}
+      function (error){alert(error)/*сообщить об ошибке*/}
       );
   }
 
@@ -259,7 +259,7 @@
         fillAppCatalog();
         loadAppInfo(appId);
       },
-      function(error){console.log(error)}
+      function(error){alert(error)}
     );
   }
 
@@ -316,7 +316,7 @@
     });    
   }
 
-  function appShopStart(){
+  return {init: function(){
     document.querySelector(".main-nav__cart-btn").addEventListener("click", function(e){
       e.preventDefault();
       appShopCart.init();
@@ -331,6 +331,6 @@
       if(cart) appShopCart.init();
     },false);
   }
- // localStorage.clear();
-  window.addEventListener("DOMContentLoaded", appShopStart() );
+
+}
 })();

@@ -7,13 +7,16 @@ var parentContainer = document.querySelector(".modal-content"),
           cartGood,
           dataStr=localStorage.getItem("fs-appShop-cart");    
       this._data = [];
-      dataArr=JSON.parse(dataStr);
-      if (Array.isArray(dataArr)) {
-        len = dataArr.length;
-        for(var i = 0; i<len; i++) if (isCorrectData(dataArr[i])){
-          cartGood = generateCorrectDataObj(dataArr[i]);
-          this.put(cartGood);
-        }
+      try{
+        dataArr=JSON.parse(dataStr);
+      } catch(e){
+        return alert("Ошибка синхронизации данных");
+      } 
+      if (!Array.isArray(dataArr)) return alert("Ошибка синхронизации данных");
+      len = dataArr.length;
+      for(var i = 0; i<len; i++) if (isCorrectData(dataArr[i])){
+        cartGood = generateCorrectDataObj(dataArr[i]);
+        this.put(cartGood);
       }
     }
 
@@ -174,7 +177,6 @@ var parentContainer = document.querySelector(".modal-content"),
         cartBaseContainer = clone.querySelector(".cart-base"),
         tableClone = $$.createClone(".cart-table-template"),
         tableRowCLone, btnDel,
-        btnNext = clone.querySelector(".cart-link_on_payment"),
         btnClose = clone.querySelector(".btn-close-cart"),
         btnCompleteClose = clone.querySelector(".cart-complete__close-btn"),
         btnOnPayment = clone.querySelector(".cart-link_on_payment"),
@@ -220,8 +222,7 @@ var parentContainer = document.querySelector(".modal-content"),
       priceTotal.innerHTML=Math.floor( myCart.calcPrice() );
       priceCents.innerHTML=$$.getDecimal( myCart.calcPrice(), 2);
     } else {
-      btnNext.classList.add('cart-btn_disabled');
-      btnNext.addEventListener("click",emptyBtn);
+      btnOnPayment.classList.add('cart-btn_disabled');
       $$.showErrorMessage(cartBaseContainer, "Вы не добавили ни одного приложения", true);
     }
 
@@ -235,6 +236,7 @@ var parentContainer = document.querySelector(".modal-content"),
 
     btnOnPayment.addEventListener("click",function(e){
       e.preventDefault();
+      if (e.target.classList.contains("cart-btn_disabled")) return;
       changeCartPage(0,1);
     });
     

@@ -70,9 +70,13 @@
         xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);    
         xhr.onload = function(e){
-          if(xhr.status !== 200) return reject("status"+ xhr.status);
-          if (!xhr.responseText) return reject("data is empty");
-            resolve( JSON.parse(xhr.responseText));
+          if(xhr.status !== 200) return reject("Не удалось загрузить данные с сервера");
+          if (!xhr.responseText) return reject("Ответ от сервера пустой");
+            try{
+              resolve( JSON.parse(xhr.responseText));
+            } catch(e){
+              reject("Получены некорректные данные");
+            }
         }
         xhr.onerror = function(e){return reject("LoadError")}
         xhr.send();
