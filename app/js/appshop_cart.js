@@ -1,6 +1,7 @@
 ;var appShopCart = (function(){
 
-var Cart=$$.sugarOop.cls(null, function(){
+var parentContainer = document.querySelector(".modal-content"),
+    Cart=$$.sugarOop.cls(null, function(){
     this.__init__ = function() {
       var dataArr, len,
           cartGood,
@@ -96,11 +97,80 @@ var Cart=$$.sugarOop.cls(null, function(){
       document.querySelector(".cart-entry-btn__icon").classList.add("cart-entry-btn__icon_green");
       for(i=0; i< len; i++) icons[i].classList.add("cart-entry-btn__info-icon_green");
     }
-  };   
+  };  
+
+  function setCartNavBtns(active){
+    var navButtons = parentContainer.querySelectorAll(".cart-nav__btn"),
+        len = navButtons.length;
+    for(var i = 0; i<len; i++ ) {
+      navButtons[i].classList.remove("cart-nav__btn_active");
+      navButtons[i].classList.remove("cart-nav__btn_done");
+    }
+    for(i=0; i<active; i++)navButtons[i].classList.add("cart-nav__btn_done") ;
+    navButtons[active].classList.add("cart-nav__btn_active") ;  
+  }
+
+  function showCartPage(linkedPage){
+      var cartPage = parentContainer.querySelectorAll(".cart__content")[linkedPage];
+      document.querySelector(".cart").setAttribute("data-active-page", linkedPage);   
+      setCartNavBtns(linkedPage);
+      cartPage.classList.remove("cart__content_hidden");
+      cartPage.classList.remove("cart__content_blocked");
+      cartPage.classList.add("cart__content_show");
+      if(linkedPage == 2) insertUserInfo();
+    }   
+
+  function hideCartPage(linkedPage){
+    var cartPage = parentContainer.querySelectorAll(".cart__content")[linkedPage];    
+    cartPage.classList.add("cart__content_hidden");
+    cartPage.classList.remove("cart__content_show");
+    cartPage.classList.remove("cart__content_blocked");
+  }
+  
+  function changeCartPage(oldPage, newPage){
+    hideCartPage(oldPage);
+    showCartPage(newPage);
+  }
+
+  function blockCartPage(linkedPage){
+    var cartPage = parentContainer.querySelectorAll(".cart__content")[linkedPage];    
+    cartPage.classList.add("cart__content_blocked");
+  }
+
+  function emptyBtn(e){
+    e.preventDefault();
+  }
+
+  function saveUserInfo(){
+    var form = document.querySelector(".contacts-form"),
+        userName = form.querySelector(".contacts-form__input[name='user-name']"),
+        userLastName = form.querySelector(".contacts-form__input[name='user-last-name']"),
+        userTel = form.querySelector(".contacts-form__input[name='user-tel']"),
+        userEmail = form.querySelector(".contacts-form__input[name='user-mail']");
+    try {
+      localStorage.setItem("fs-appShop-user-name", userName.value);
+      localStorage.setItem("fs-appShop-user-last-name", userLastName.value);
+      localStorage.setItem("fs-appShop-user-tel", userTel.value);
+      localStorage.setItem("fs-appShop-user-mail", userEmail.value);
+    } catch(e){
+      //обработать исключение
+    }  
+  }
+  
+  function insertUserInfo(){
+    var form = document.querySelector(".contacts-form"),
+        userName = form.querySelector(".contacts-form__input[name='user-name']"),
+        userLastName = form.querySelector(".contacts-form__input[name='user-last-name']"),
+        userTel = form.querySelector(".contacts-form__input[name='user-tel']"),
+        userEmail = form.querySelector(".contacts-form__input[name='user-mail']");
+    userName.value = localStorage.getItem("fs-appShop-user-name");
+    userLastName.value = localStorage.getItem("fs-appShop-user-last-name");
+    userTel.value = localStorage.getItem("fs-appShop-user-tel");
+    userEmail.value = localStorage.getItem("fs-appShop-user-mail");     
+  }
 
   function init(){
-    var parentContainer = document.querySelector(".modal-content"),
-        clone = $$.createClone(".cart-window-template"),
+    var clone = $$.createClone(".cart-window-template"),
         cartBaseContainer = clone.querySelector(".cart-base"),
         tableClone = $$.createClone(".cart-table-template"),
         tableRowCLone, btnDel,
@@ -115,49 +185,7 @@ var Cart=$$.sugarOop.cls(null, function(){
         priceCents = clone.querySelector(".price-plate__cents"),
         cartLinks = clone.querySelectorAll(".cart-nav__btn-face"), len=cartLinks.length,
         myCart = new Cart();
-
-    function setCartNavBtns(active){
-      var navButtons = parentContainer.querySelectorAll(".cart-nav__btn"),
-          len = navButtons.length;
-      for(var i = 0; i<len; i++ ) {
-        navButtons[i].classList.remove("cart-nav__btn_active");
-        navButtons[i].classList.remove("cart-nav__btn_done");
-      }
-      for(i=0; i<active; i++)navButtons[i].classList.add("cart-nav__btn_done") ;
-      navButtons[active].classList.add("cart-nav__btn_active") ;  
-    }
-
-    function showCartPage(linkedPage){
-      var cartPage = parentContainer.querySelectorAll(".cart__content")[linkedPage]; 
-      document.querySelector(".cart").setAttribute("data-active-page", linkedPage);   
-      setCartNavBtns(linkedPage);
-      cartPage.classList.remove("cart__content_hidden");
-      cartPage.classList.remove("cart__content_blocked");
-      cartPage.classList.add("cart__content_show");
-      if(linkedPage == 2) insertUserInfo();
-    }    
     
-    function hideCartPage(linkedPage){
-      var cartPage = parentContainer.querySelectorAll(".cart__content")[linkedPage];    
-      cartPage.classList.add("cart__content_hidden");
-      cartPage.classList.remove("cart__content_show");
-      cartPage.classList.remove("cart__content_blocked");
-    }
-    
-    function changeCartPage(oldPage, newPage){
-      hideCartPage(oldPage);
-      showCartPage(newPage);
-    }
-
-    function blockCartPage(linkedPage){
-      var cartPage = parentContainer.querySelectorAll(".cart__content")[linkedPage];    
-      cartPage.classList.add("cart__content_blocked");
-    }
-
-    function emptyBtn(e){
-      e.preventDefault();
-    }
-
     function closeCart(e) {
       e.preventDefault();
       parentContainer.innerHTML = "";
@@ -166,42 +194,11 @@ var Cart=$$.sugarOop.cls(null, function(){
         refreshEntryBtn();
       }  
     }
-    
-    function saveUserInfo(){
-      var form = document.querySelector(".contacts-form"),
-          userName = form.querySelector(".contacts-form__input[name='user-name']"),
-          userLastName = form.querySelector(".contacts-form__input[name='user-last-name']"),
-          userTel = form.querySelector(".contacts-form__input[name='user-tel']"),
-          userEmail = form.querySelector(".contacts-form__input[name='user-mail']");
-      try {
-        localStorage.setItem("fs-appShop-user-name", userName.value);
-        localStorage.setItem("fs-appShop-user-last-name", userLastName.value);
-        localStorage.setItem("fs-appShop-user-tel", userTel.value);
-        localStorage.setItem("fs-appShop-user-mail", userEmail.value);
-      } catch(e){
-        //обработать исключение
-      }  
-    }
-    
-    function insertUserInfo(){
-      var form = document.querySelector(".contacts-form"),
-          userName = form.querySelector(".contacts-form__input[name='user-name']"),
-          userLastName = form.querySelector(".contacts-form__input[name='user-last-name']"),
-          userTel = form.querySelector(".contacts-form__input[name='user-tel']"),
-          userEmail = form.querySelector(".contacts-form__input[name='user-mail']");
-      userName.value = localStorage.getItem("fs-appShop-user-name");
-      userLastName.value = localStorage.getItem("fs-appShop-user-last-name");
-      userTel.value = localStorage.getItem("fs-appShop-user-tel");
-      userEmail.value = localStorage.getItem("fs-appShop-user-mail");     
-    }
 
     function deleteAppFromCart(e){
       e.preventDefault();
-      var appId = parseInt(e.target.getAttribute("data-appId"),10)/*,
-         tBody = document.querySelector(".price-table").querySelector("tbody"),
-         tableRows = tBody.querySelectorAll(".price-table__row")*/;
+      var appId = parseInt(e.target.getAttribute("data-appId"),10);
       myCart.remove(appId);
-//      tBody.removeChild(tableRows[index+1]);
       refreshEntryBtn();
       init();
     }

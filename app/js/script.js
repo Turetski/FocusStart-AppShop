@@ -332,5 +332,5 @@
     },false);
   }
  // localStorage.clear();
-  appShopStart();
+  window.addEventListener("DOMContentLoaded", appShopStart() );
 })();
