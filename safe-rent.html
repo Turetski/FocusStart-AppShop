@@ -72,11 +72,19 @@
             </ul>
           </nav>
         </div>
-        <div class="safe-rent inner-content__right-column">
+        <div ng-controller= "innerContentCtrl as icCtrl"class="safe-rent inner-content__right-column">
           <h1 class="page-title safe-rent__title">Каталог - Аренда сейфов</h1>
-          <div ng-controller="appTable as ctrl" class="catalog-table">
-            <app-item ng-repeat="app in ctrl.apps" ng-controller="panelCtrl as c"></app-item>
-          </div>
+          <table ng-show="icCtrl.selectedApp===0" ng-controller="appTable as tCtrl" class="catalog-table">
+            <tr class="catalog-table__head-row">
+              <td class="catalog-table__image-cell"></td>
+              <td class="catalog-table__name-cell">Наименование</td>
+              <td class="catalog-table__descript-cell">Описание</td>
+              <td class="catalog-table__price-cell">Стоимость <br>(тыс у.е.)</td>
+            </tr>
+            <tr ng-repeat = "app in tCtrl.apps" app-table-item class="catalog-table__row" ng-click="icCtrl.showApp(app)">
+            </tr>
+            <app-item ng-show="icCtrl.selectedApp!==0" ng-controller="panelCtrl as c"></app-item>
+          </table>
         </div>
       </section>
       <footer class= "inner-content__footer"></footer>

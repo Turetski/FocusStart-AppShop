@@ -1,35 +1,17 @@
-<!--
-  <td class="catalog-table__image-cell">
+<ul class="nav nav-pills">
+  <li ng-class="{active:c.isSelected(1)}"><a href ng-click="c.setPanel(1)">Описание</a></li>
+  <li ng-class="{active:c.isSelected(2)}"><a href ng-click="c.setPanel(2)">Дата</a></li>
+  <li ng-class="{active:c.isSelected(3)}"><a href ng-click="c.setPanel(3)">Цена</a></li>
+</ul>
+<div class="panel" ng-show="c.isSelected(1)">
   <div class="catalog-table__image catalog-table__image_new-bank"></div>
-</td>
-<td class="catalog-table__name-cell">
-  <span class="catalog-table__name">{{app.name}}</span><br>
-  <time class="pub-date" datetime="2016-09-09">{{app.date | date:'dd-MM-yyyy'}}</time>
-</td>
-<td class="catalog-table__descript-cell">
   <p class="catalog-table__description">
-    {{app.description}}
+    {{icCtrl.curApp.description}}
   </p>
-</td>
-<td class="catalog-table__price-cell">
-  <span class="catalog-table__price">{{app.price}}</span>
-</td>
--->
-
-  <ul class="nav nav-pills">
-    <li ng-class="{active:c.isSelected(1)}"><a href ng-click="c.setPanel(1)">Описание</a></li>
-    <li ng-class="{active:c.isSelected(2)}"><a href ng-click="c.setPanel(2)">Дата</a></li>
-    <li ng-class="{active:c.isSelected(3)}"><a href ng-click="c.setPanel(3)">Цена</a></li>
-  </ul>
-  <div class="panel" ng-show="c.isSelected(1)">
-   <div class="catalog-table__image catalog-table__image_new-bank"></div>
-   <p class="catalog-table__description">
-     {{app.description}}
-   </p>
-  </div>
-  <div class="panel" ng-show="c.isSelected(2)">
-    <time class="pub-date" datetime="2016-09-09">{{app.date | date:'dd-MM-yyyy'}}</time>
-  </div>
-  <div class="panel" ng-show="c.isSelected(3)">
-    <span class="catalog-table__price">{{app.price}}</span>
-  </div>
+</div>
+<div class="panel" ng-show="c.isSelected(2)">
+  <time class="pub-date" datetime="2016-09-09">{{icCtrl.curApp.date | date:'dd-MM-yyyy'}}</time>
+</div>
+<div class="panel" ng-show="c.isSelected(3)">
+  <span class="catalog-table__price">{{icCtrl.curApp.price}}</span>
+</div>

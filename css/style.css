@@ -148,6 +148,7 @@ html {
 
 .price-table__row {
   border-bottom: 1px solid #e8e9ed;
+
 }
 
 .price-table__head-cell {
@@ -881,6 +882,9 @@ html {
   color: #5f5f5f;
 }
 
+.catalog-table__row {
+  cursor: pointer;
+}
 .catalog-table__row_dark {
   background-color: #f7f7f7;
 }

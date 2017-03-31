@@ -54,7 +54,20 @@
        return panel===this.tab;
   	};
   });
-
+  AppStore.controller("innerContentCtrl", function(){
+    this.selectedApp = 0;
+    this.curApp = undefined;
+    this.showApp = function(app){
+      this.selectedApp = 1;
+      this.curApp = app;
+    };
+  });
+  AppStore.directive("appTableItem",function(){
+    return {
+      restrict: "A",
+      templateUrl: "source/appTableRow.html"
+    };
+  });
   AppStore.directive("appItem",function(){
     return {
       restrict: "E",
