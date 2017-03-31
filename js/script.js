@@ -44,9 +44,20 @@
   AppStore.controller("appTable", function(){
     this.apps = apps;
   });
+
+  AppStore.controller("panelCtrl", function(){
+  	this.tab = 1;
+  	this.setPanel = function(setPanel){
+      this.tab = setPanel;
+  	};
+  	this.isSelected = function(panel){
+       return panel===this.tab;
+  	};
+  });
+
   AppStore.directive("appItem",function(){
     return {
-      restrict: "A",
+      restrict: "E",
       templateUrl: "source/appItem.html"
     };
   });

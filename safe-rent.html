@@ -4,13 +4,13 @@
     <title>Магазин приложений: корзина</title>
     <meta charset="utf-8">
     <link href="css/style.css" type="text/css" rel="stylesheet">
-    
+    <link href="css/bootstrap.min.css" type="text/css" rel="stylesheet">
   </head>
   <body>
     <div class="container">  
       <header class="main-header">
         <div class="wrapper clearfix">
-          <a href="#" class="logo-img" draggable></a>
+          <a href="#" class="logo-img"></a>
           <nav class="main-nav">
             <ul class="main-nav__list">
               <li class="main-nav__element"><a class="main-nav__link" href="#" title="Главная страница">Главная</a></li>
@@ -74,18 +74,9 @@
         </div>
         <div class="safe-rent inner-content__right-column">
           <h1 class="page-title safe-rent__title">Каталог - Аренда сейфов</h1>
-          <table ng-controller="appTable as ctrl" class="catalog-table">
-            <tr class="catalog-table__head-row">
-              <td class="catalog-table__image-cell"></td>
-              <td class="catalog-table__name-cell">Наименование</td>
-              <td class="catalog-table__descript-cell">Описание</td>
-              <td class="catalog-table__price-cell">Стоимость <br>(тыс у.е.)</td>
-            </tr>
-            <tr ng-repeat = "app in ctrl.apps" app-item class="catalog-table__row">
-              
-            </tr>
-            
-          </table>
+          <div ng-controller="appTable as ctrl" class="catalog-table">
+            <app-item ng-repeat="app in ctrl.apps" ng-controller="panelCtrl as c"></app-item>
+          </div>
         </div>
       </section>
       <footer class= "inner-content__footer"></footer>
