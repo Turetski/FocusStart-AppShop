@@ -1,15 +1,16 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" ng-app="AppStore">
   <head>
     <title>Магазин приложений: корзина</title>
     <meta charset="utf-8">
     <link href="css/style.css" type="text/css" rel="stylesheet">
+    
   </head>
   <body>
     <div class="container">  
       <header class="main-header">
         <div class="wrapper clearfix">
-          <a href="#" class="logo-img"></a>
+          <a href="#" class="logo-img" draggable></a>
           <nav class="main-nav">
             <ul class="main-nav__list">
               <li class="main-nav__element"><a class="main-nav__link" href="#" title="Главная страница">Главная</a></li>
@@ -73,170 +74,23 @@
         </div>
         <div class="safe-rent inner-content__right-column">
           <h1 class="page-title safe-rent__title">Каталог - Аренда сейфов</h1>
-          <table class="catalog-table">
+          <table ng-controller="appTable as ctrl" class="catalog-table">
             <tr class="catalog-table__head-row">
               <td class="catalog-table__image-cell"></td>
               <td class="catalog-table__name-cell">Наименование</td>
               <td class="catalog-table__descript-cell">Описание</td>
               <td class="catalog-table__price-cell">Стоимость <br>(тыс у.е.)</td>
             </tr>
-            <tr class="catalog-table__row">
-              <td class="catalog-table__image-cell">
-                <div class="catalog-table__image catalog-table__image_new-bank"></div>
-              </td>
-              <td class="catalog-table__name-cell">
-                <span class="catalog-table__name">Учет сейфовых ячеек</span><br>
-                <time class="pub-date" datetime="2016-09-09">09 сентября 2016</time>
-              </td>
-              <td class="catalog-table__descript-cell">
-                <p class="catalog-table__description">
-                  Аналитический учет сейфовых ячеек банка по подразделениям банка.
-                </p>
-              </td>
-              <td class="catalog-table__price-cell">
-                <span class="catalog-table__price">4.99</span>
-              </td>
+            <tr ng-repeat = "app in ctrl.apps" app-item class="catalog-table__row">
+              
             </tr>
-            <tr class="catalog-table__row catalog-table__row_dark">
-              <td class="catalog-table__image-cell">
-                <div class="catalog-table__image catalog-table__image_new-bank"></div>
-              </td>
-              <td class="catalog-table__name-cell">
-                <span class="catalog-table__name">Учет сейфовых ячеек</span><br>
-                <time class="pub-date" datetime="2016-09-09">09 сентября 2016</time>
-              </td>
-              <td class="catalog-table__descript-cell">
-                <p class="catalog-table__description">
-                  Аналитический учет сейфовых ячеек банка по подразделениям банка.
-                </p>
-              </td>
-              <td class="catalog-table__price-cell">
-                <span class="catalog-table__price">4.99</span>
-              </td>
-            </tr>
-            <tr class="catalog-table__row">
-              <td class="catalog-table__image-cell">
-                <div class="catalog-table__image catalog-table__image_new-bank"></div>
-              </td>
-              <td class="catalog-table__name-cell">
-                <span class="catalog-table__name">Учет сейфовых ячеек</span><br>
-                <time class="pub-date" datetime="2016-09-09">09 сентября 2016</time>
-              </td>
-              <td class="catalog-table__descript-cell">
-                <p class="catalog-table__description">
-                  Аналитический учет сейфовых ячеек банка по подразделениям банка.
-                </p>
-              </td>
-              <td class="catalog-table__price-cell">
-                <span class="catalog-table__price">4.99</span>
-              </td>
-            </tr>
-            <tr class="catalog-table__row catalog-table__row_dark">
-              <td class="catalog-table__image-cell">
-                <div class="catalog-table__image catalog-table__image_new-bank"></div>
-              </td>
-              <td class="catalog-table__name-cell">
-                <span class="catalog-table__name">Учет сейфовых ячеек</span><br>
-                <time class="pub-date" datetime="2016-09-09">09 сентября 2016</time>
-              </td>
-              <td class="catalog-table__descript-cell">
-                <p class="catalog-table__description">
-                  Аналитический учет сейфовых ячеек банка по подразделениям банка.
-                </p>
-              </td>
-              <td class="catalog-table__price-cell">
-                <span class="catalog-table__price">4.99</span>
-              </td>
-            </tr>
-            <tr class="catalog-table__row">
-              <td class="catalog-table__image-cell">
-                <div class="catalog-table__image catalog-table__image_new-bank"></div>
-              </td>
-              <td class="catalog-table__name-cell">
-                <span class="catalog-table__name">Учет сейфовых ячеек</span><br>
-                <time class="pub-date" datetime="2016-09-09">09 сентября 2016</time>
-              </td>
-              <td class="catalog-table__descript-cell">
-                <p class="catalog-table__description">
-                  Аналитический учет сейфовых ячеек банка по подразделениям банка.
-                </p>
-              </td>
-              <td class="catalog-table__price-cell">
-                <span class="catalog-table__price">4.99</span>
-              </td>
-            </tr>
-            <tr class="catalog-table__row catalog-table__row_dark">
-              <td class="catalog-table__image-cell">
-                <div class="catalog-table__image catalog-table__image_new-bank"></div>
-              </td>
-              <td class="catalog-table__name-cell">
-                <span class="catalog-table__name">Учет сейфовых ячеек</span><br>
-                <time class="pub-date" datetime="2016-09-09">09 сентября 2016</time>
-              </td>
-              <td class="catalog-table__descript-cell">
-                <p class="catalog-table__description">
-                  Аналитический учет сейфовых ячеек банка по подразделениям банка.
-                </p>
-              </td>
-              <td class="catalog-table__price-cell">
-                <span class="catalog-table__price">4.99</span>
-              </td>
-            </tr>
-            <tr class="catalog-table__row">
-              <td class="catalog-table__image-cell">
-                <div class="catalog-table__image catalog-table__image_new-bank"></div>
-              </td>
-              <td class="catalog-table__name-cell">
-                <span class="catalog-table__name">Учет сейфовых ячеек</span><br>
-                <time class="pub-date" datetime="2016-09-09">09 сентября 2016</time>
-              </td>
-              <td class="catalog-table__descript-cell">
-                <p class="catalog-table__description">
-                  Аналитический учет сейфовых ячеек банка по подразделениям банка.
-                </p>
-              </td>
-              <td class="catalog-table__price-cell">
-                <span class="catalog-table__price">4.99</span>
-              </td>
-            </tr>
-            <tr class="catalog-table__row catalog-table__row_dark">
-              <td class="catalog-table__image-cell">
-                <div class="catalog-table__image catalog-table__image_new-bank"></div>
-              </td>
-              <td class="catalog-table__name-cell">
-                <span class="catalog-table__name">Учет сейфовых ячеек</span><br>
-                <time class="pub-date" datetime="2016-09-09">09 сентября 2016</time>
-              </td>
-              <td class="catalog-table__descript-cell">
-                <p class="catalog-table__description">
-                  Аналитический учет сейфовых ячеек банка по подразделениям банка.
-                </p>
-              </td>
-              <td class="catalog-table__price-cell">
-                <span class="catalog-table__price">4.99</span>
-              </td>
-            </tr>
-            <tr class="catalog-table__row">
-              <td class="catalog-table__image-cell">
-                <div class="catalog-table__image catalog-table__image_new-bank"></div>
-              </td>
-              <td class="catalog-table__name-cell">
-                <span class="catalog-table__name">Учет сейфовых ячеек</span><br>
-                <time class="pub-date" datetime="2016-09-09">09 сентября 2016</time>
-              </td>
-              <td class="catalog-table__descript-cell">
-                <p class="catalog-table__description">
-                  Аналитический учет сейфовых ячеек банка по подразделениям банка.
-                </p>
-              </td>
-              <td class="catalog-table__price-cell">
-                <span class="catalog-table__price">4.99</span>
-              </td>
-            </tr>
+            
           </table>
         </div>
       </section>
       <footer class= "inner-content__footer"></footer>
-    </div>  
+    </div> 
+    <script src="js/angular.js"></script>
+    <script src="js/script.js"></script> 
   </body>
 </html>
