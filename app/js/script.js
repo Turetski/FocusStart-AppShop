@@ -34,6 +34,7 @@
        return panel===this.tab;
   	};
   });
+  
   AppStore.controller("innerContentCtrl", function(){
     this.selectedApp = 0;
     this.curApp = undefined;
